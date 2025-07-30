@@ -1,0 +1,34 @@
+{
+	"schemaVersion": 1,
+	"id": "tcc-diamond-economy",
+	"version": "${version}",
+	"name": "TCC Diamond Economy",
+	"description": "A server-side diamond economy mod that allows players to deposit, withdraw, and manage diamond balances.",
+	"authors": [
+		"Hoormazd1379"
+	],
+	"contact": {
+		"homepage": "https://github.com/Hoormazd1379/tcc-diamond-economy",
+		"sources": "https://github.com/Hoormazd1379/tcc-diamond-economy"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/tcc-diamond-economy/icon.png",
+	"environment": "server",
+	"entrypoints": {
+		"server": [
+			"net.thecubecollective.diamondeconomy.Tccdiamondeconomy"
+		]
+	},
+	"mixins": [
+		"tcc-diamond-economy.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.21.8",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
