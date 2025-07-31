@@ -4,7 +4,7 @@
 [![Fabric API](https://img.shields.io/badge/Fabric%20API-0.130.0-blue.svg)](https://fabricmc.net)
 [![Java Version](https://img.shields.io/badge/Java-21+-orange.svg)](https://openjdk.org/)
 [![License](https://img.shields.io/badge/License-CC0--1.0-lightgrey.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.3.4-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
+[![Version](https://img.shields.io/badge/Version-1.5.1-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
 [![Server Side](https://img.shields.io/badge/Side-Server-yellow.svg)]()
 
 A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric that allows players to manage their diamond wealth through a secure banking system with transfers, balance management, offline notifications, and chest shops for player-to-player trading.
@@ -13,11 +13,14 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 
 ### 💰 **Core Banking System**
 - **Secure Balance Management**: UUID-based player accounts with persistent JSON storage
+- **Fractional Support**: Full support for fractional diamond amounts (e.g., 1.5, 0.25, 2.75 diamonds)
 - **Deposit System**: Convert physical diamonds to account balance
 - **Withdrawal System**: Convert account balance back to physical diamonds with inventory space validation
+- **Smart Balance Display**: Automatically formats balances (removes unnecessary decimal places)
 - **Balance Checking**: View your current diamond wealth instantly
 
 ### 💎 **Transfer System**
+- **Fractional Transfers**: Send precise amounts like `/wire Steve 2.75` or `/wire Alice 0.31`
 - **Player-to-Player Transfers**: Send diamonds to any player, online or offline
 - **Offline Notifications**: Recipients get notified of transfers when they log in
 - **Transfer Validation**: Prevents self-transfers and validates player existence
@@ -29,6 +32,7 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 - **Visual Rankings**: Medal system (🥇🥈🥉) for top players
 
 ### 🏪 **Advanced Chest Shop System**
+- **Fractional Pricing**: Create shops with decimal prices like `/createshop 1.5` or `/createshop 0.25`
 - **Shop Creation**: Convert trapped chests into shops with custom per-item pricing
 - **Custom Shopping GUI**: Dedicated customer interface separate from chest inventory
 - **Enhanced Visual Effects**: Multiple particle types with orbital sparkles and ambient glows
@@ -73,7 +77,7 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 
 ### Server Installation
 1. Download the latest release from [Releases](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
-2. Place `tcc-diamond-economy-1.3.4.jar` in your server's `mods/` folder
+2. Place `tcc-diamond-economy-1.5.1.jar` in your server's `mods/` folder
 3. Ensure Fabric API is installed
 4. Start your server
 5. Players can immediately start using the economy system!
@@ -97,25 +101,28 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 ### Basic Economy Operations
 ```
 /deposit 64          # Deposit a stack of diamonds
-/balance             # Check your balance
-/withdraw 32         # Withdraw half a stack
-/baltop              # See who's the richest
+/balance             # Check your balance (shows fractional amounts cleanly)
+/withdraw 32         # Withdraw half a stack (still requires whole diamonds)
+/baltop              # See who's the richest (displays fractional balances)
 ```
 
-### Transfer System
+### Fractional Transfer System
 ```
-/wire Steve 10       # Send 10 diamonds to Steve
-/wire Alice 50       # Send diamonds to offline player
+/wire Steve 10.5     # Send 10.5 diamonds to Steve
+/wire Alice 0.25     # Send a quarter diamond to Alice
+/wire Bob 2.75       # Send fractional amounts with precision
 ```
 
-### Chest Shop System
+### Fractional Chest Shop System
 ```
 # Place a trapped chest, then:
-/createshop 5        # Create shop with 5 diamonds per item
-/listshops           # View all your shops
+/createshop 1.5      # Create shop with 1.5 diamonds per item
+/createshop 0.1      # Cheap items at 0.1 diamonds each
+/createshop 25.75    # Premium pricing with fractional precision
+/listshops           # View all your shops with fractional prices
 /removeshop          # Remove shop (look at it first)
 
-# Put items in your shop chest - customers will pay automatically!
+# Put items in your shop chest - customers pay fractional amounts automatically!
 # Enhanced particle effects help customers find your shops easily!
 ```
 
@@ -226,7 +233,16 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 
 ## 📋 Version History
 
-### Version 1.5.0 (Current)
+### Version 1.5.1 (Current)
+**💰 Fractional Diamond Economy:**
+- **Fractional Pricing**: Create shops with decimal prices like 1.5 or 0.1 diamonds per item
+- **Fractional Transfers**: Send precise amounts like `/wire Steve 2.75` or `/wire Alice 0.31`
+- **Smart Balance Display**: Automatically formats balances (125.5 shows as "125.5", 100.0 shows as "100")
+- **BigDecimal Precision**: Upgraded from long to BigDecimal for accurate fractional calculations
+- **Backward Compatibility**: Existing shops and balances automatically migrate to fractional system
+- **Enhanced Visual Effects**: Improved shop particle effects with cleaner visuals and higher frequency
+
+### Version 1.5.0
 **🔍 Shop Validation System:**
 - **Automatic Integrity Checking**: Shop database is now validated every 10 seconds
   - Automatically removes shops that have been destroyed by TNT, creepers, or other environmental damage

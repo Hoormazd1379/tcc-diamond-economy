@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Improved** All user-facing messages to display fractional amounts appropriately
 - **Enhanced** Command validation to accept minimum values of 0.01 diamonds
 
+### 🎨 Visual Enhancements
+- **Removed** Distracting spell effect particles from shop particle rotation
+- **Enhanced** Special effect frequency - Golden shower effects now appear 4% of the time (doubled from 2%)
+- **Enhanced** Floating sparkle frequency - Orbital sparkles now appear 50% of the time (increased from 33%)
+- **Improved** Shop visibility with cleaner, more frequent visual effects using COMPOSTER, HAPPY_VILLAGER, and ENCHANT particles
+
 ### 📋 Examples
 - Create shops with fractional prices: `/createshop 1.5` or `/createshop 0.25`
 - Transfer fractional amounts: `/wire Steve 2.75` or `/wire Alice 0.1`
