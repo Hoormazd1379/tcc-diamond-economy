@@ -2,10 +2,6 @@ package net.thecubecollective.diamondeconomy.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
-import net.thecubecollective.diamondeconomy.Tccdiamondeconomy;
-
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.block.Blocks;
@@ -19,21 +15,27 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.thecubecollective.diamondeconomy.BalanceManager;
 import net.thecubecollective.diamondeconomy.ChestShopManager;
 import net.thecubecollective.diamondeconomy.Tccdiamondeconomy;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class CreateShopCommand {
     
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(CommandManager.literal("createshop")
-                .then(CommandManager.argument("price", LongArgumentType.longArg(1))
+                .then(CommandManager.argument("price", DoubleArgumentType.doubleArg(0.01))
                         .executes(CreateShopCommand::createShop))
                 .executes(ctx -> {
                     ctx.getSource().sendError(Text.literal("Usage: /createshop <price_per_item>")
                             .formatted(Formatting.RED));
                     ctx.getSource().sendMessage(Text.literal("Look at a trapped chest and specify the price in diamonds per item")
                             .formatted(Formatting.YELLOW));
-                    ctx.getSource().sendMessage(Text.literal("Example: /createshop 5 (5 diamonds per item)")
+                    ctx.getSource().sendMessage(Text.literal("Example: /createshop 5.5 (5.5 diamonds per item)")
+                            .formatted(Formatting.GRAY));
+                    ctx.getSource().sendMessage(Text.literal("Example: /createshop 0.1 (0.1 diamonds per item)")
                             .formatted(Formatting.GRAY));
                     return 0;
                 }));
@@ -47,10 +49,11 @@ public class CreateShopCommand {
             return 0;
         }
         
-        long pricePerItem = LongArgumentType.getLong(context, "price");
+        double priceInput = DoubleArgumentType.getDouble(context, "price");
+        BigDecimal pricePerItem = BigDecimal.valueOf(priceInput).setScale(2, RoundingMode.HALF_UP);
         
-        if (pricePerItem <= 0) {
-            source.sendError(Text.literal("Price must be greater than 0!")
+        if (pricePerItem.compareTo(BigDecimal.valueOf(0.01)) < 0) {
+            source.sendError(Text.literal("Price must be at least 0.01 diamonds!")
                     .formatted(Formatting.RED));
             return 0;
         }
@@ -105,9 +108,9 @@ public class CreateShopCommand {
                     .formatted(Formatting.AQUA));
             source.sendMessage(Text.literal("📍 Location: " + targetPos.getX() + ", " + targetPos.getY() + ", " + targetPos.getZ())
                     .formatted(Formatting.GRAY));
-            source.sendMessage(Text.literal("💎 Price: " + pricePerItem + " diamonds per item")
+            source.sendMessage(Text.literal("💎 Price: " + BalanceManager.formatBalance(pricePerItem) + " diamonds per item")
                     .formatted(Formatting.GOLD));
-            source.sendMessage(Text.literal("💡 Fill your chest with items to sell! Players will pay " + pricePerItem + " diamonds for each item they take.")
+            source.sendMessage(Text.literal("💡 Fill your chest with items to sell! Players will pay " + BalanceManager.formatBalance(pricePerItem) + " diamonds for each item they take.")
                     .formatted(Formatting.YELLOW));
             source.sendMessage(Text.literal("🛠️ Use /removeshop while looking at this shop to safely remove it")
                     .formatted(Formatting.GRAY));

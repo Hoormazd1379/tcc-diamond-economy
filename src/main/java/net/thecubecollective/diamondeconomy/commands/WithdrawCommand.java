@@ -12,7 +12,10 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.thecubecollective.diamondeconomy.BalanceManager;
 import net.thecubecollective.diamondeconomy.Tccdiamondeconomy;
+
+import java.math.BigDecimal;
 
 public class WithdrawCommand {
     
@@ -26,11 +29,14 @@ public class WithdrawCommand {
         ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
         int amount = IntegerArgumentType.getInteger(context, "amount");
         
-        long currentBalance = Tccdiamondeconomy.getBalanceManager().getBalance(player.getUuid());
+        BigDecimal currentBalance = Tccdiamondeconomy.getBalanceManager().getBalance(player.getUuid());
+        BigDecimal withdrawAmount = BigDecimal.valueOf(amount);
         
-        if (currentBalance < amount) {
-            player.sendMessage(Text.literal("Insufficient balance! You have " + currentBalance + " diamonds in your account.")
+        if (currentBalance.compareTo(withdrawAmount) < 0) {
+            player.sendMessage(Text.literal("Insufficient balance! You have " + BalanceManager.formatBalance(currentBalance) + " diamonds in your account.")
                     .formatted(Formatting.RED), false);
+            player.sendMessage(Text.literal("Note: You can only withdraw whole diamonds, but you can transfer fractional amounts to other players.")
+                    .formatted(Formatting.YELLOW), false);
             player.sendMessage(Text.literal("Use /tcchelp for command usage information.")
                     .formatted(Formatting.GRAY), false);
             return 0;
@@ -60,7 +66,7 @@ public class WithdrawCommand {
         }
         
         // Remove from balance
-        if (!Tccdiamondeconomy.getBalanceManager().removeBalance(player.getUuid(), amount)) {
+        if (!Tccdiamondeconomy.getBalanceManager().removeBalance(player.getUuid(), withdrawAmount)) {
             player.sendMessage(Text.literal("Transaction failed! Please try again.")
                     .formatted(Formatting.RED), false);
             return 0;
@@ -93,7 +99,7 @@ public class WithdrawCommand {
         }
         
         player.sendMessage(Text.literal("Withdrew " + amount + " diamonds! New balance: " + 
-                Tccdiamondeconomy.getBalanceManager().getBalance(player.getUuid()) + " diamonds.")
+                BalanceManager.formatBalance(Tccdiamondeconomy.getBalanceManager().getBalance(player.getUuid())) + " diamonds.")
                 .formatted(Formatting.GREEN), false);
         
         return 1;

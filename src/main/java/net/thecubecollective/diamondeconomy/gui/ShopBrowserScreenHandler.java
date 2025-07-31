@@ -18,6 +18,8 @@ import net.thecubecollective.diamondeconomy.BalanceManager;
 import net.thecubecollective.diamondeconomy.ChestShopManager;
 import net.thecubecollective.diamondeconomy.Tccdiamondeconomy;
 
+import java.math.BigDecimal;
+
 public class ShopBrowserScreenHandler extends GenericContainerScreenHandler {
     private final ChestShopManager.ChestShop shop;
     private final BlockPos pos;
@@ -59,7 +61,7 @@ public class ShopBrowserScreenHandler extends GenericContainerScreenHandler {
                 // Create new display name with price info
                 Text newDisplayName = Text.literal("")
                     .append(originalName.copy().formatted(Formatting.GOLD, Formatting.BOLD))
-                    .append(Text.literal(" - " + shop.pricePerItem + "💎 each")
+                    .append(Text.literal(" - " + BalanceManager.formatBalance(shop.getPrice()) + "💎 each")
                         .formatted(Formatting.YELLOW));
                 
                 // Set the custom name for display purposes
@@ -127,13 +129,13 @@ public class ShopBrowserScreenHandler extends GenericContainerScreenHandler {
         String originalItemName = actualItem.getName().getString();
         
         BalanceManager balanceManager = Tccdiamondeconomy.getBalanceManager();
-        long playerBalance = balanceManager.getBalance(player.getUuid());
-        long totalCost = (long) shop.pricePerItem * quantityToBuy;
+        BigDecimal playerBalance = balanceManager.getBalance(player.getUuid());
+        BigDecimal totalCost = shop.getPrice().multiply(BigDecimal.valueOf(quantityToBuy));
         
-        if (playerBalance < totalCost) {
+        if (playerBalance.compareTo(totalCost) < 0) {
             player.sendMessage(Text.literal("❌ Insufficient funds!")
                     .formatted(Formatting.RED), true);
-            player.sendMessage(Text.literal("💎 Cost: " + totalCost + " diamonds | Your balance: " + playerBalance + " diamonds")
+            player.sendMessage(Text.literal("💎 Cost: " + BalanceManager.formatBalance(totalCost) + " diamonds | Your balance: " + BalanceManager.formatBalance(playerBalance) + " diamonds")
                     .formatted(Formatting.YELLOW), false);
             return;
         }
@@ -170,10 +172,10 @@ public class ShopBrowserScreenHandler extends GenericContainerScreenHandler {
         player.sendMessage(Text.literal("✅ Purchase successful!")
                 .formatted(Formatting.GREEN), true);
         player.sendMessage(Text.literal("🛒 Bought " + quantityToBuy + "x " + originalItemName + 
-                " for " + totalCost + " diamonds")
+                " for " + BalanceManager.formatBalance(totalCost) + " diamonds")
                 .formatted(Formatting.GOLD), false);
         player.sendMessage(Text.literal("💰 New balance: " + 
-                balanceManager.getBalance(player.getUuid()) + " diamonds")
+                BalanceManager.formatBalance(balanceManager.getBalance(player.getUuid())) + " diamonds")
                 .formatted(Formatting.AQUA), false);
         
         // Notify shop owner if online, otherwise add to pending notifications
@@ -181,9 +183,9 @@ public class ShopBrowserScreenHandler extends GenericContainerScreenHandler {
         if (shopOwner != null) {
             shopOwner.sendMessage(Text.literal("💰 SALE! " + player.getName().getString() + " bought " + 
                     quantityToBuy + "x " + originalItemName + 
-                    " from your shop for " + totalCost + " diamonds!")
+                    " from your shop for " + BalanceManager.formatBalance(totalCost) + " diamonds!")
                     .formatted(Formatting.GREEN, Formatting.BOLD));
-            shopOwner.sendMessage(Text.literal("💎 You earned " + totalCost + " diamonds!")
+            shopOwner.sendMessage(Text.literal("💎 You earned " + BalanceManager.formatBalance(totalCost) + " diamonds!")
                     .formatted(Formatting.GOLD), false);
         } else {
             // Shop owner is offline, add to pending notifications

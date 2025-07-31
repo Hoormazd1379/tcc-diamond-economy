@@ -5,6 +5,29 @@ All notable changes to TCC Diamond Economy will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2025-07-31
+
+### 💰 Fractional Diamond Economy
+- **Added** Support for fractional diamond amounts in balances and transactions
+- **Enhanced** Shop pricing to accept fractional values (e.g., 1.5 diamonds, 0.1 diamonds per item)
+- **Enhanced** Transfer system to support fractional amounts (e.g., `/wire Player 0.31`)
+- **Enhanced** All balance displays with smart formatting (removes unnecessary decimal places)
+- **Technical** Upgraded internal balance system from `long` to `BigDecimal` for precision
+- **Technical** Added backward compatibility for existing balance and shop data migration
+- **Note** Withdrawal still requires whole diamond amounts (since physical diamonds are whole items)
+
+### 🔧 Technical Improvements
+- **Added** `BalanceManager.formatBalance()` method for consistent fractional display
+- **Enhanced** All shop and transfer calculations to use precise decimal arithmetic
+- **Added** Automatic migration system for legacy integer-based data
+- **Improved** All user-facing messages to display fractional amounts appropriately
+- **Enhanced** Command validation to accept minimum values of 0.01 diamonds
+
+### 📋 Examples
+- Create shops with fractional prices: `/createshop 1.5` or `/createshop 0.25`
+- Transfer fractional amounts: `/wire Steve 2.75` or `/wire Alice 0.1`
+- View formatted balances: `125.5 diamonds` displays as "125.5", `100.0` displays as "100"
+
 ## [1.5.0] - 2025-07-31
 
 ### 🔍 Shop Validation System

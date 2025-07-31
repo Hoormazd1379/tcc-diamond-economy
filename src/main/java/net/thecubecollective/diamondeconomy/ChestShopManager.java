@@ -9,6 +9,7 @@ import net.minecraft.world.World;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -39,12 +40,13 @@ public class ChestShopManager {
         public String ownerName;
         public String worldName;
         public int x, y, z;
-        public long pricePerItem;
+        public BigDecimal pricePerItem;
+        public Long legacyPricePerItem; // For backward compatibility during migration
         public long createdTime;
         
         public ChestShop() {} // For Gson
         
-        public ChestShop(UUID ownerUUID, String ownerName, BlockPos pos, String worldName, long pricePerItem) {
+        public ChestShop(UUID ownerUUID, String ownerName, BlockPos pos, String worldName, BigDecimal pricePerItem) {
             this.ownerUUID = ownerUUID;
             this.ownerName = ownerName;
             this.worldName = worldName;
@@ -52,7 +54,23 @@ public class ChestShopManager {
             this.y = pos.getY();
             this.z = pos.getZ();
             this.pricePerItem = pricePerItem;
+            this.legacyPricePerItem = null;
             this.createdTime = System.currentTimeMillis();
+        }
+        
+        // Legacy constructor for backward compatibility
+        public ChestShop(UUID ownerUUID, String ownerName, BlockPos pos, String worldName, long pricePerItem) {
+            this(ownerUUID, ownerName, pos, worldName, BigDecimal.valueOf(pricePerItem));
+        }
+        
+        public BigDecimal getPrice() {
+            if (pricePerItem != null) {
+                return pricePerItem;
+            } else if (legacyPricePerItem != null) {
+                // Migrate legacy price
+                return BigDecimal.valueOf(legacyPricePerItem);
+            }
+            return BigDecimal.ZERO;
         }
         
         public BlockPos getBlockPos() {
@@ -78,7 +96,7 @@ public class ChestShopManager {
         }
     }
     
-    public boolean createShop(UUID ownerUUID, String ownerName, BlockPos pos, World world, long pricePerItem) {
+    public boolean createShop(UUID ownerUUID, String ownerName, BlockPos pos, World world, BigDecimal pricePerItem) {
         String locationKey = getLocationKey(world, pos);
         
         if (shops.containsKey(locationKey)) {
@@ -90,9 +108,14 @@ public class ChestShopManager {
         saveShops();
         
         Tccdiamondeconomy.LOGGER.info("Created chest shop at {} for player {} with price {} diamonds per item", 
-                locationKey, ownerName, pricePerItem);
+                locationKey, ownerName, BalanceManager.formatBalance(pricePerItem));
         
         return true;
+    }
+    
+    // Legacy method for backward compatibility
+    public boolean createShop(UUID ownerUUID, String ownerName, BlockPos pos, World world, long pricePerItem) {
+        return createShop(ownerUUID, ownerName, pos, world, BigDecimal.valueOf(pricePerItem));
     }
     
     public boolean removeShop(BlockPos pos, World world, UUID playerUUID) {

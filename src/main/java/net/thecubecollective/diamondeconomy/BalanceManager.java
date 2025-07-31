@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import net.minecraft.server.MinecraftServer;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -15,7 +17,7 @@ public class BalanceManager {
     private static final String BALANCE_FILE_EXTENSION = ".json";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     
-    private final Map<UUID, Long> balanceCache = new ConcurrentHashMap<>();
+    private final Map<UUID, BigDecimal> balanceCache = new ConcurrentHashMap<>();
     private final Path balanceDirectory;
     
     public BalanceManager(MinecraftServer server) {
@@ -28,34 +30,57 @@ public class BalanceManager {
         loadAllBalances();
     }
     
-    public long getBalance(UUID playerUUID) {
-        return balanceCache.getOrDefault(playerUUID, 0L);
+    public BigDecimal getBalance(UUID playerUUID) {
+        return balanceCache.getOrDefault(playerUUID, BigDecimal.ZERO);
     }
     
-    public void setBalance(UUID playerUUID, long amount) {
-        balanceCache.put(playerUUID, Math.max(0, amount));
+    public void setBalance(UUID playerUUID, BigDecimal amount) {
+        balanceCache.put(playerUUID, amount.max(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP));
         saveBalance(playerUUID);
     }
     
-    public void addBalance(UUID playerUUID, long amount) {
-        long currentBalance = getBalance(playerUUID);
-        setBalance(playerUUID, currentBalance + amount);
+    public void addBalance(UUID playerUUID, BigDecimal amount) {
+        BigDecimal currentBalance = getBalance(playerUUID);
+        setBalance(playerUUID, currentBalance.add(amount));
     }
     
-    public boolean removeBalance(UUID playerUUID, long amount) {
-        long currentBalance = getBalance(playerUUID);
-        if (currentBalance >= amount) {
-            setBalance(playerUUID, currentBalance - amount);
+    // Legacy method for backward compatibility (accepts long)
+    public void addBalance(UUID playerUUID, long amount) {
+        addBalance(playerUUID, BigDecimal.valueOf(amount));
+    }
+    
+    public boolean removeBalance(UUID playerUUID, BigDecimal amount) {
+        BigDecimal currentBalance = getBalance(playerUUID);
+        if (currentBalance.compareTo(amount) >= 0) {
+            setBalance(playerUUID, currentBalance.subtract(amount));
             return true;
         }
         return false;
     }
     
-    public List<Map.Entry<UUID, Long>> getTopBalances(int limit) {
+    // Legacy method for backward compatibility (accepts long)  
+    public boolean removeBalance(UUID playerUUID, long amount) {
+        return removeBalance(playerUUID, BigDecimal.valueOf(amount));
+    }
+    
+    public List<Map.Entry<UUID, BigDecimal>> getTopBalances(int limit) {
         return balanceCache.entrySet().stream()
-                .sorted(Map.Entry.<UUID, Long>comparingByValue().reversed())
+                .sorted(Map.Entry.<UUID, BigDecimal>comparingByValue().reversed())
                 .limit(limit)
                 .toList();
+    }
+    
+    /**
+     * Format a BigDecimal balance for display, removing unnecessary decimal places
+     */
+    public static String formatBalance(BigDecimal amount) {
+        if (amount.scale() <= 0 || amount.remainder(BigDecimal.ONE).compareTo(BigDecimal.ZERO) == 0) {
+            // Whole number, display without decimals
+            return amount.setScale(0, RoundingMode.DOWN).toString();
+        } else {
+            // Has fractional part, display with up to 2 decimal places, removing trailing zeros
+            return amount.setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
+        }
     }
     
     private void saveBalance(UUID playerUUID) {
@@ -89,7 +114,15 @@ public class BalanceManager {
             String json = Files.readString(balanceFile);
             PlayerBalance balance = GSON.fromJson(json, PlayerBalance.class);
             if (balance != null && balance.uuid != null) {
-                balanceCache.put(balance.uuid, balance.balance);
+                // Handle legacy long balances and new BigDecimal balances
+                if (balance.balance != null) {
+                    balanceCache.put(balance.uuid, balance.balance);
+                } else if (balance.legacyBalance != null) {
+                    // Migrate legacy long balance to BigDecimal
+                    balanceCache.put(balance.uuid, BigDecimal.valueOf(balance.legacyBalance));
+                    // Save in new format
+                    saveBalance(balance.uuid);
+                }
             }
         } catch (IOException e) {
             Tccdiamondeconomy.LOGGER.error("Failed to load balance file: " + balanceFile, e);
@@ -98,11 +131,20 @@ public class BalanceManager {
     
     private static class PlayerBalance {
         public final UUID uuid;
-        public final long balance;
+        public final BigDecimal balance;
+        public final Long legacyBalance; // For backward compatibility during migration
         
-        public PlayerBalance(UUID uuid, long balance) {
+        public PlayerBalance(UUID uuid, BigDecimal balance) {
             this.uuid = uuid;
             this.balance = balance;
+            this.legacyBalance = null;
+        }
+        
+        // For legacy compatibility during JSON deserialization
+        public PlayerBalance(UUID uuid, Long legacyBalance) {
+            this.uuid = uuid;
+            this.balance = null;
+            this.legacyBalance = legacyBalance;
         }
     }
 }

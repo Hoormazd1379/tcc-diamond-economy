@@ -136,7 +136,7 @@ public class ChestShopEventHandler {
                 .formatted(Formatting.GOLD, Formatting.BOLD), true);
         player.sendMessage(Text.literal("💎 Price: " + shop.pricePerItem + " diamonds per item")
                 .formatted(Formatting.YELLOW), false);
-        player.sendMessage(Text.literal("💰 Your balance: " + Tccdiamondeconomy.getBalanceManager().getBalance(player.getUuid()) + " diamonds")
+        player.sendMessage(Text.literal("💰 Your balance: " + BalanceManager.formatBalance(Tccdiamondeconomy.getBalanceManager().getBalance(player.getUuid())) + " diamonds")
                 .formatted(Formatting.AQUA), false);
         player.sendMessage(Text.literal("🛒 Left-click to buy 1 item, Right-click to buy full stack")
                 .formatted(Formatting.GRAY), false);

@@ -9,7 +9,10 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.thecubecollective.diamondeconomy.BalanceManager;
 import net.thecubecollective.diamondeconomy.Tccdiamondeconomy;
+
+import java.math.BigDecimal;
 
 public class BalanceCommand {
     
@@ -25,9 +28,9 @@ public class BalanceCommand {
     private static int execute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
         
-        long balance = Tccdiamondeconomy.getBalanceManager().getBalance(player.getUuid());
+        BigDecimal balance = Tccdiamondeconomy.getBalanceManager().getBalance(player.getUuid());
         
-        player.sendMessage(Text.literal("Your balance: " + balance + " diamonds")
+        player.sendMessage(Text.literal("Your balance: " + BalanceManager.formatBalance(balance) + " diamonds")
                 .formatted(Formatting.GOLD), false);
         
         return 1;

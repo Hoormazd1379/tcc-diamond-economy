@@ -59,7 +59,7 @@ public class ShopParticleManager {
             double z = pos.getZ() + 0.5 + (random.nextGaussian() * 0.4);
             
             // More varied particle types with higher frequency
-            int particleType = random.nextInt(4);
+            int particleType = random.nextInt(3); // Reduced from 4 to 3 (removed EFFECT)
             switch (particleType) {
                 case 0:
                     world.spawnParticles(ParticleTypes.COMPOSTER, x, y, z, 1, 0, 0.05, 0, 0.03);
@@ -68,16 +68,13 @@ public class ShopParticleManager {
                     world.spawnParticles(ParticleTypes.HAPPY_VILLAGER, x, y, z, 1, 0, 0.05, 0, 0.03);
                     break;
                 case 2:
-                    world.spawnParticles(ParticleTypes.EFFECT, x, y, z, 1, 0, 0.05, 0, 0.02);
-                    break;
-                case 3:
                     world.spawnParticles(ParticleTypes.ENCHANT, x, y, z, 1, 0, 0.05, 0, 0.02);
                     break;
             }
         }
         
         // Add floating sparkle effect around the chest
-        if (random.nextInt(3) == 0) { // 33% chance each tick
+        if (random.nextInt(2) == 0) { // Increased from 33% to 50% chance each tick
             double angle = random.nextDouble() * 2 * Math.PI;
             double radius = 1.2;
             double x = pos.getX() + 0.5 + Math.cos(angle) * radius;
@@ -88,7 +85,7 @@ public class ShopParticleManager {
         }
         
         // Occasionally spawn a more noticeable golden effect
-        if (random.nextInt(50) == 0) { // More frequent special effect
+        if (random.nextInt(4) == 0) {
             double x = pos.getX() + 0.5;
             double y = pos.getY() + 1.0;
             double z = pos.getZ() + 0.5;

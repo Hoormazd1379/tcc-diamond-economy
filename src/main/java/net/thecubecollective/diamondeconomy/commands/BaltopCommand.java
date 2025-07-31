@@ -9,8 +9,10 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.thecubecollective.diamondeconomy.BalanceManager;
 import net.thecubecollective.diamondeconomy.Tccdiamondeconomy;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,7 +27,7 @@ public class BaltopCommand {
     private static int execute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
         
-        List<Map.Entry<UUID, Long>> topBalances = Tccdiamondeconomy.getBalanceManager().getTopBalances(10);
+        List<Map.Entry<UUID, BigDecimal>> topBalances = Tccdiamondeconomy.getBalanceManager().getTopBalances(10);
         
         if (topBalances.isEmpty()) {
             player.sendMessage(Text.literal("No players have any diamonds in their accounts yet!")
@@ -37,9 +39,9 @@ public class BaltopCommand {
                 .formatted(Formatting.GOLD, Formatting.BOLD), false);
         
         for (int i = 0; i < topBalances.size(); i++) {
-            Map.Entry<UUID, Long> entry = topBalances.get(i);
+            Map.Entry<UUID, BigDecimal> entry = topBalances.get(i);
             UUID playerUUID = entry.getKey();
-            Long balance = entry.getValue();
+            BigDecimal balance = entry.getValue();
             
             // Get player name from server
             String playerName = getPlayerName(playerUUID);
@@ -65,7 +67,7 @@ public class BaltopCommand {
                     break;
             }
             
-            player.sendMessage(Text.literal(medal + (i + 1) + ". " + playerName + ": " + balance + " diamonds")
+            player.sendMessage(Text.literal(medal + (i + 1) + ". " + playerName + ": " + BalanceManager.formatBalance(balance) + " diamonds")
                     .formatted(rankColor), false);
         }
         

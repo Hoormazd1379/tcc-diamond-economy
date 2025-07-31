@@ -8,6 +8,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -27,16 +28,26 @@ public class NotificationManager {
         loadNotifications();
     }
     
-    public void addPendingTransfer(UUID recipientUUID, String senderName, long amount) {
+    public void addPendingTransfer(UUID recipientUUID, String senderName, BigDecimal amount) {
         pendingTransfers.computeIfAbsent(recipientUUID, k -> new ArrayList<>())
                 .add(new PendingTransfer(senderName, amount, System.currentTimeMillis()));
         saveNotifications();
     }
     
-    public void addPendingShopSale(UUID shopOwnerUUID, String buyerName, String itemName, int quantity, long earnings) {
+    // Legacy method for backward compatibility
+    public void addPendingTransfer(UUID recipientUUID, String senderName, long amount) {
+        addPendingTransfer(recipientUUID, senderName, BigDecimal.valueOf(amount));
+    }
+    
+    public void addPendingShopSale(UUID shopOwnerUUID, String buyerName, String itemName, int quantity, BigDecimal earnings) {
         pendingShopSales.computeIfAbsent(shopOwnerUUID, k -> new ArrayList<>())
                 .add(new PendingShopSale(buyerName, itemName, quantity, earnings, System.currentTimeMillis()));
         saveNotifications();
+    }
+    
+    // Legacy method for backward compatibility
+    public void addPendingShopSale(UUID shopOwnerUUID, String buyerName, String itemName, int quantity, long earnings) {
+        addPendingShopSale(shopOwnerUUID, buyerName, itemName, quantity, BigDecimal.valueOf(earnings));
     }
     
     public void checkAndSendPendingNotifications(ServerPlayerEntity player) {
@@ -49,15 +60,16 @@ public class NotificationManager {
             player.sendMessage(Text.literal("💰 === Pending Transfers ===")
                     .formatted(Formatting.GOLD, Formatting.BOLD), false);
             
-            long totalReceived = 0;
+            BigDecimal totalReceived = BigDecimal.ZERO;
             for (PendingTransfer transfer : transferNotifications) {
-                player.sendMessage(Text.literal("💎 You received " + transfer.amount + " diamonds from " + transfer.senderName + "!")
+                BigDecimal amount = transfer.getAmount();
+                player.sendMessage(Text.literal("💎 You received " + BalanceManager.formatBalance(amount) + " diamonds from " + transfer.senderName + "!")
                         .formatted(Formatting.GREEN), false);
-                totalReceived += transfer.amount;
+                totalReceived = totalReceived.add(amount);
             }
             
             if (transferNotifications.size() > 1) {
-                player.sendMessage(Text.literal("Total received: " + totalReceived + " diamonds")
+                player.sendMessage(Text.literal("Total received: " + BalanceManager.formatBalance(totalReceived) + " diamonds")
                         .formatted(Formatting.GOLD, Formatting.BOLD), false);
             }
             
@@ -71,19 +83,20 @@ public class NotificationManager {
             
             // Consolidate sales by buyer and item
             Map<String, Map<String, ConsolidatedSale>> consolidatedSales = new HashMap<>();
-            long totalEarned = 0;
+            BigDecimal totalEarned = BigDecimal.ZERO;
             
             for (PendingShopSale sale : shopSaleNotifications) {
+                BigDecimal saleEarnings = sale.getEarnings();
                 consolidatedSales.computeIfAbsent(sale.buyerName, k -> new HashMap<>())
                     .merge(sale.itemName, 
-                           new ConsolidatedSale(sale.buyerName, sale.itemName, sale.quantity, sale.earnings),
+                           new ConsolidatedSale(sale.buyerName, sale.itemName, sale.quantity, saleEarnings),
                            (existing, newSale) -> new ConsolidatedSale(
                                existing.buyerName,
                                existing.itemName,
                                existing.totalQuantity + newSale.totalQuantity,
-                               existing.totalEarnings + newSale.totalEarnings
+                               existing.totalEarnings.add(newSale.totalEarnings)
                            ));
-                totalEarned += sale.earnings;
+                totalEarned = totalEarned.add(saleEarnings);
             }
             
             // Display consolidated sales
@@ -91,13 +104,13 @@ public class NotificationManager {
                 for (ConsolidatedSale sale : buyerSales.values()) {
                     player.sendMessage(Text.literal("💰 SALE! " + sale.buyerName + " bought " + 
                             sale.totalQuantity + "x " + sale.itemName + 
-                            " from your shop for " + sale.totalEarnings + " diamonds!")
+                            " from your shop for " + BalanceManager.formatBalance(sale.totalEarnings) + " diamonds!")
                             .formatted(Formatting.GREEN), false);
                 }
             }
             
             if (shopSaleNotifications.size() > 1) {
-                player.sendMessage(Text.literal("Total shop earnings: " + totalEarned + " diamonds")
+                player.sendMessage(Text.literal("Total shop earnings: " + BalanceManager.formatBalance(totalEarned) + " diamonds")
                         .formatted(Formatting.GOLD, Formatting.BOLD), false);
             }
             
@@ -108,8 +121,8 @@ public class NotificationManager {
         if ((transferNotifications != null && !transferNotifications.isEmpty()) || 
             (shopSaleNotifications != null && !shopSaleNotifications.isEmpty())) {
             
-            long currentBalance = Tccdiamondeconomy.getBalanceManager().getBalance(playerUUID);
-            player.sendMessage(Text.literal("Your current balance: " + currentBalance + " diamonds")
+            BigDecimal currentBalance = Tccdiamondeconomy.getBalanceManager().getBalance(playerUUID);
+            player.sendMessage(Text.literal("Your current balance: " + BalanceManager.formatBalance(currentBalance) + " diamonds")
                     .formatted(Formatting.YELLOW), false);
             
             saveNotifications();
@@ -181,13 +194,27 @@ public class NotificationManager {
     
     public static class PendingTransfer {
         public final String senderName;
-        public final long amount;
+        public final BigDecimal amount;
+        public final Long legacyAmount; // For backward compatibility
         public final long timestamp;
         
-        public PendingTransfer(String senderName, long amount, long timestamp) {
+        public PendingTransfer(String senderName, BigDecimal amount, long timestamp) {
             this.senderName = senderName;
             this.amount = amount;
+            this.legacyAmount = null;
             this.timestamp = timestamp;
+        }
+        
+        // Legacy constructor for backward compatibility
+        public PendingTransfer(String senderName, long amount, long timestamp) {
+            this.senderName = senderName;
+            this.amount = BigDecimal.valueOf(amount);
+            this.legacyAmount = amount;
+            this.timestamp = timestamp;
+        }
+        
+        public BigDecimal getAmount() {
+            return amount != null ? amount : (legacyAmount != null ? BigDecimal.valueOf(legacyAmount) : BigDecimal.ZERO);
         }
     }
     
@@ -195,15 +222,31 @@ public class NotificationManager {
         public final String buyerName;
         public final String itemName;
         public final int quantity;
-        public final long earnings;
+        public final BigDecimal earnings;
+        public final Long legacyEarnings; // For backward compatibility
         public final long timestamp;
         
-        public PendingShopSale(String buyerName, String itemName, int quantity, long earnings, long timestamp) {
+        public PendingShopSale(String buyerName, String itemName, int quantity, BigDecimal earnings, long timestamp) {
             this.buyerName = buyerName;
             this.itemName = itemName;
             this.quantity = quantity;
             this.earnings = earnings;
+            this.legacyEarnings = null;
             this.timestamp = timestamp;
+        }
+        
+        // Legacy constructor for backward compatibility
+        public PendingShopSale(String buyerName, String itemName, int quantity, long earnings, long timestamp) {
+            this.buyerName = buyerName;
+            this.itemName = itemName;
+            this.quantity = quantity;
+            this.earnings = BigDecimal.valueOf(earnings);
+            this.legacyEarnings = earnings;
+            this.timestamp = timestamp;
+        }
+        
+        public BigDecimal getEarnings() {
+            return earnings != null ? earnings : (legacyEarnings != null ? BigDecimal.valueOf(legacyEarnings) : BigDecimal.ZERO);
         }
     }
     
@@ -216,9 +259,9 @@ public class NotificationManager {
         public final String buyerName;
         public final String itemName;
         public final int totalQuantity;
-        public final long totalEarnings;
+        public final BigDecimal totalEarnings;
         
-        public ConsolidatedSale(String buyerName, String itemName, int totalQuantity, long totalEarnings) {
+        public ConsolidatedSale(String buyerName, String itemName, int totalQuantity, BigDecimal totalEarnings) {
             this.buyerName = buyerName;
             this.itemName = itemName;
             this.totalQuantity = totalQuantity;
