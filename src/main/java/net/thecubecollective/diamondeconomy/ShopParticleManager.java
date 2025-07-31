@@ -85,23 +85,13 @@ public class ShopParticleManager {
         }
         
         // Occasionally spawn a more noticeable golden effect
-        if (random.nextInt(4) == 0) {
+        if (random.nextInt(25) == 0) { // Increased from 2% to 4% chance
             double x = pos.getX() + 0.5;
             double y = pos.getY() + 1.0;
             double z = pos.getZ() + 0.5;
             
-            // Golden shower effect
-            world.spawnParticles(ParticleTypes.TOTEM_OF_UNDYING, x, y, z, 5, 0.5, 0.2, 0.5, 0.08);
-            world.spawnParticles(ParticleTypes.ENCHANT, x, y, z, 8, 0.3, 0.3, 0.3, 0.1);
-        }
-        
-        // Add a subtle ambient glow effect
-        if (random.nextInt(2) == 0) {
-            double x = pos.getX() + 0.3 + (random.nextDouble() * 0.4);
-            double y = pos.getY() + 0.9;
-            double z = pos.getZ() + 0.3 + (random.nextDouble() * 0.4);
-            
-            world.spawnParticles(ParticleTypes.END_ROD, x, y, z, 1, 0, 0.02, 0, 0.005);
+            // Enhanced enchant particle effect (removed totem effect)
+            world.spawnParticles(ParticleTypes.ENCHANT, x, y, z, 12, 0.4, 0.4, 0.4, 0.15);
         }
     }
 }

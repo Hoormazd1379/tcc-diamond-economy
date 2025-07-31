@@ -50,19 +50,19 @@ public class BaltopCommand {
             String medal = "";
             switch (i) {
                 case 0:
-                    rankColor = Formatting.GOLD;
+                    rankColor = Formatting.YELLOW; // Bright gold for 1st place
                     medal = "🥇 ";
                     break;
                 case 1:
-                    rankColor = Formatting.GRAY;
+                    rankColor = Formatting.GRAY; // Silver for 2nd place  
                     medal = "🥈 ";
                     break;
                 case 2:
-                    rankColor = Formatting.YELLOW;
+                    rankColor = Formatting.GOLD; // Bronze/darker gold for 3rd place
                     medal = "🥉 ";
                     break;
                 default:
-                    rankColor = Formatting.WHITE;
+                    rankColor = Formatting.DARK_GRAY; // Gray that's readable but doesn't stand out
                     medal = "";
                     break;
             }

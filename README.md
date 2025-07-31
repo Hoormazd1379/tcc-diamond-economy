@@ -4,7 +4,7 @@
 [![Fabric API](https://img.shields.io/badge/Fabric%20API-0.130.0-blue.svg)](https://fabricmc.net)
 [![Java Version](https://img.shields.io/badge/Java-21+-orange.svg)](https://openjdk.org/)
 [![License](https://img.shields.io/badge/License-CC0--1.0-lightgrey.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.5.1-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
+[![Version](https://img.shields.io/badge/Version-1.5.2-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
 [![Server Side](https://img.shields.io/badge/Side-Server-yellow.svg)]()
 
 A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric that allows players to manage their diamond wealth through a secure banking system with transfers, balance management, offline notifications, and chest shops for player-to-player trading.
@@ -77,7 +77,7 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 
 ### Server Installation
 1. Download the latest release from [Releases](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
-2. Place `tcc-diamond-economy-1.5.1.jar` in your server's `mods/` folder
+2. Place `tcc-diamond-economy-1.5.2.jar` in your server's `mods/` folder
 3. Ensure Fabric API is installed
 4. Start your server
 5. Players can immediately start using the economy system!
@@ -233,7 +233,13 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 
 ## 📋 Version History
 
-### Version 1.5.1 (Current)
+### Version 1.5.2 (Current)
+**🎨 Visual & UX Improvements:**
+- **Fixed** Baltop ranking colors - 1st place now bright yellow, 3rd place bronze, 4th-10th gray
+- **Simplified** Particle effects by removing totem and end rod particles for cleaner visuals
+- **Streamlined** Help command by removing lengthy notes section
+
+### Version 1.5.1
 **💰 Fractional Diamond Economy:**
 - **Fractional Pricing**: Create shops with decimal prices like 1.5 or 0.1 diamonds per item
 - **Fractional Transfers**: Send precise amounts like `/wire Steve 2.75` or `/wire Alice 0.31`

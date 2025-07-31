@@ -5,6 +5,23 @@ All notable changes to TCC Diamond Economy will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2025-07-31
+
+### 🎨 Visual & UX Improvements
+- **Fixed** Baltop ranking colors for better visual hierarchy:
+  - 1st place now uses bright yellow (more prominent than bronze)
+  - 2nd place remains silver/gray
+  - 3rd place uses darker gold (bronze-like)
+  - 4th-10th places now use dark gray (readable but non-distracting)
+- **Simplified** Particle effects by removing totem and end rod particles
+- **Enhanced** Golden enchant effect frequency and intensity (cleaner visual experience)
+- **Streamlined** Help command by removing lengthy important notes section and usage examples
+- **Enhanced** Admin command visibility - only shown to OP players (permission level 2+)
+
+### 🔧 Technical Improvements
+- **Optimized** Shop particle system with fewer particle types for better performance
+- **Improved** Help command readability and reduced text clutter
+
 ## [1.5.1] - 2025-07-31
 
 ### 💰 Fractional Diamond Economy
