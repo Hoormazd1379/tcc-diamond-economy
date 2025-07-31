@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.0] - 2025-07-31
 
+### 🔍 Shop Validation System
+- **Added** Automatic shop database integrity checking every 10 seconds
+- **Added** Automatic cleanup of destroyed shops (removes shops from database when blocks are missing)
+- **Added** Admin commands for shop management:
+  - `/shopvalidate` - Manually trigger shop validation check (OP only)
+  - `/shopvalidate stats` - View validation system statistics (OP only)
+- **Enhanced** Help system with admin commands section for operators
+- **Improved** Database integrity to ensure shop data matches actual world state
+
+### 🏪 Offline Shop Sale Notifications
+- **Added** Offline sale summary system for shop owners
+- **Enhanced** NotificationManager to handle both transfer and shop sale notifications
+- **Added** Comprehensive sale summaries when players log in after being offline
+  - Shows all items sold while offline
+  - Displays buyer names, quantities, and earnings
+  - **Consolidated Sales**: Multiple purchases of the same item by the same buyer are combined into single lines
+  - Total earnings summary for multiple sales
+- **Improved** Shop owner experience with complete sale tracking
+
+notable changes to TCC Diamond Economy will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.5.0] - 2025-07-31
+
 ### � Shop Validation System
 - **Added** Automatic shop database integrity checking every 10 seconds
 - **Added** Automatic cleanup of destroyed shops (removes shops from database when blocks are missing)
@@ -22,6 +48,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Enhanced** Main mod initialization with validation system startup
 - **Improved** Chunk-aware validation (skips unloaded chunks to prevent false positives)
 - **Added** Comprehensive logging for shop cleanup operations
+- **Enhanced** `NotificationManager` with support for shop sale notifications
+- **Added** `PendingShopSale` class for offline sale tracking
+- **Added** `NotificationData` class for improved JSON serialization
 
 ### � Documentation Updates
 - **Updated** Protection claims to accurately reflect actual capabilities

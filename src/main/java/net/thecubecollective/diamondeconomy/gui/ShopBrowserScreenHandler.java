@@ -176,7 +176,7 @@ public class ShopBrowserScreenHandler extends GenericContainerScreenHandler {
                 balanceManager.getBalance(player.getUuid()) + " diamonds")
                 .formatted(Formatting.AQUA), false);
         
-        // Notify shop owner if online
+        // Notify shop owner if online, otherwise add to pending notifications
         ServerPlayerEntity shopOwner = Tccdiamondeconomy.getServer().getPlayerManager().getPlayer(shop.ownerUUID);
         if (shopOwner != null) {
             shopOwner.sendMessage(Text.literal("💰 SALE! " + player.getName().getString() + " bought " + 
@@ -185,6 +185,15 @@ public class ShopBrowserScreenHandler extends GenericContainerScreenHandler {
                     .formatted(Formatting.GREEN, Formatting.BOLD));
             shopOwner.sendMessage(Text.literal("💎 You earned " + totalCost + " diamonds!")
                     .formatted(Formatting.GOLD), false);
+        } else {
+            // Shop owner is offline, add to pending notifications
+            Tccdiamondeconomy.getNotificationManager().addPendingShopSale(
+                    shop.ownerUUID, 
+                    player.getName().getString(), 
+                    originalItemName, 
+                    quantityToBuy, 
+                    totalCost
+            );
         }
         
         Tccdiamondeconomy.LOGGER.info("Player {} purchased {}x {} from {}'s shop for {} diamonds", 

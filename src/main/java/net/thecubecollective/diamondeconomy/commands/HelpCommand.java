@@ -119,6 +119,7 @@ public class HelpCommand {
         
         player.sendMessage(Text.literal("• All amounts must be positive numbers").formatted(Formatting.YELLOW), false);
         player.sendMessage(Text.literal("• Transfers work with both online and offline players").formatted(Formatting.YELLOW), false);
+        player.sendMessage(Text.literal("• Offline players receive sale summaries when they log in").formatted(Formatting.YELLOW), false);
         player.sendMessage(Text.literal("• Your balance is automatically saved").formatted(Formatting.YELLOW), false);
         player.sendMessage(Text.literal("• You need enough inventory space for withdrawals").formatted(Formatting.YELLOW), false);
         player.sendMessage(Text.literal("• Chest shops use trapped chests with golden particles").formatted(Formatting.YELLOW), false);

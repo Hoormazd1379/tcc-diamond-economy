@@ -36,6 +36,7 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 - **Automatic Validation**: Shop database integrity checked every 10 seconds, removing destroyed shops
 - **Smart Purchase System**: Left-click for single items, right-click for full stacks
 - **Real-time Notifications**: Shop owners get detailed sale notifications with item names and earnings
+- **Offline Sale Summaries**: Players receive comprehensive shop sale summaries when they log in after being offline
 - **Inventory Synchronization**: Accurate item display with enchantment preservation
 
 ### 🛠️ **User Experience**
@@ -177,13 +178,26 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 ### Notification System
 ```json
 {
-  "550e8400-e29b-41d4-a716-446655440000": [
-    {
-      "senderName": "Steve",
-      "amount": 25,
-      "timestamp": 1642781234567
-    }
-  ]
+  "transfers": {
+    "550e8400-e29b-41d4-a716-446655440000": [
+      {
+        "senderName": "Steve",
+        "amount": 25,
+        "timestamp": 1642781234567
+      }
+    ]
+  },
+  "shopSales": {
+    "550e8400-e29b-41d4-a716-446655440000": [
+      {
+        "buyerName": "Alice",
+        "itemName": "Diamond Sword",
+        "quantity": 1,
+        "earnings": 50,
+        "timestamp": 1642781234567
+      }
+    ]
+  }
 }
 ```
 
@@ -222,6 +236,11 @@ The mod works out-of-the-box with no configuration required! Player data is auto
   - `/shopvalidate` - Manually trigger shop validation check
   - `/shopvalidate stats` - View validation system statistics
 - **Enhanced Help System**: Updated help command with admin section for operators
+- **Offline Shop Sale Notifications**: Shop owners now receive sale summaries when they log in after being offline
+  - Similar to wire transfer notifications
+  - Shows all sales that occurred while offline
+  - **Consolidated summaries**: Multiple purchases of same item by same buyer are combined
+  - Displays total earnings from all offline sales
 - **Documentation Cleanup**: Removed false claims about explosion protection, now accurately describes actual capabilities
 
 ### Version 1.4.0
