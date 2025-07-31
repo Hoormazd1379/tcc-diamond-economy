@@ -54,6 +54,21 @@ public class HelpCommand {
         
         player.sendMessage(Text.literal(""), false); // Empty line
         
+        // Shop commands
+        player.sendMessage(Text.literal("🏪 Shop Commands:")
+                .formatted(Formatting.GOLD, Formatting.BOLD), false);
+        
+        player.sendMessage(Text.literal("/createshop <price>").formatted(Formatting.GREEN)
+                .append(Text.literal(" - Create a chest shop (look at trapped chest)").formatted(Formatting.WHITE)), false);
+        
+        player.sendMessage(Text.literal("/removeshop").formatted(Formatting.GREEN)
+                .append(Text.literal(" - Remove your chest shop (look at your shop)").formatted(Formatting.WHITE)), false);
+        
+        player.sendMessage(Text.literal("/listshops").formatted(Formatting.GREEN)
+                .append(Text.literal(" - List all your chest shops").formatted(Formatting.WHITE)), false);
+        
+        player.sendMessage(Text.literal(""), false); // Empty line
+        
         // Information commands
         player.sendMessage(Text.literal("📊 Information Commands:")
                 .formatted(Formatting.LIGHT_PURPLE, Formatting.BOLD), false);
@@ -65,6 +80,20 @@ public class HelpCommand {
                 .append(Text.literal(" - Show this help message").formatted(Formatting.WHITE)), false);
         
         player.sendMessage(Text.literal(""), false); // Empty line
+        
+        // Admin commands (only show if player has OP)
+        if (player.hasPermissionLevel(2)) {
+            player.sendMessage(Text.literal("⚙️ Admin Commands:")
+                    .formatted(Formatting.RED, Formatting.BOLD), false);
+            
+            player.sendMessage(Text.literal("/shopvalidate").formatted(Formatting.GREEN)
+                    .append(Text.literal(" - Manually check all shops for validity").formatted(Formatting.WHITE)), false);
+            
+            player.sendMessage(Text.literal("/shopvalidate stats").formatted(Formatting.GREEN)
+                    .append(Text.literal(" - Show shop validation statistics").formatted(Formatting.WHITE)), false);
+            
+            player.sendMessage(Text.literal(""), false); // Empty line
+        }
         
         // Usage examples
         player.sendMessage(Text.literal("📝 Usage Examples:")
@@ -79,6 +108,9 @@ public class HelpCommand {
         player.sendMessage(Text.literal("• /wire Steve 50").formatted(Formatting.GRAY)
                 .append(Text.literal(" - Sends 50 diamonds to Steve").formatted(Formatting.WHITE)), false);
         
+        player.sendMessage(Text.literal("• /createshop 10").formatted(Formatting.GRAY)
+                .append(Text.literal(" - Creates a shop with 10 diamonds per item").formatted(Formatting.WHITE)), false);
+        
         player.sendMessage(Text.literal(""), false); // Empty line
         
         // Notes
@@ -89,6 +121,10 @@ public class HelpCommand {
         player.sendMessage(Text.literal("• Transfers work with both online and offline players").formatted(Formatting.YELLOW), false);
         player.sendMessage(Text.literal("• Your balance is automatically saved").formatted(Formatting.YELLOW), false);
         player.sendMessage(Text.literal("• You need enough inventory space for withdrawals").formatted(Formatting.YELLOW), false);
+        player.sendMessage(Text.literal("• Chest shops use trapped chests with golden particles").formatted(Formatting.YELLOW), false);
+        player.sendMessage(Text.literal("• Only shop owners can access their shops normally").formatted(Formatting.YELLOW), false);
+        player.sendMessage(Text.literal("• Hoppers cannot access chest shops").formatted(Formatting.YELLOW), false);
+        player.sendMessage(Text.literal("• Shop database is validated every 10 seconds for integrity").formatted(Formatting.YELLOW), false);
         
         return 1;
     }

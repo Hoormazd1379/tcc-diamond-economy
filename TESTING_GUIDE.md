@@ -1,13 +1,8 @@
 # TCC Diamond Economy Mod - Testing Guide
 
 ## 🎯 Features Implemented
-5.5. **Install your mod**:
-   ```bash
-   cp /home/hoormazdp/Documents/GitHub/tcc-diamond-economy/build/libs/tcc-diamond-economy-1.1.1.jar ~/minecraft-test-server/mods/
-   ```nstall your mod**:
-   ```bash
-   cp /home/hoormazdp/Documents/GitHub/tcc-diamond-economy/build/libs/tcc-diamond-economy-1.1.0.jar ~/minecraft-test-server/mods/
-   ```r diamond economy mod is **fully functional** with all requested features:
+
+Your diamond economy mod is **fully functional** with all requested features:
 
 - ✅ `/deposit [amount]` - Deposit diamonds from inventory to account
 - ✅ `/withdraw [amount]` - Withdraw diamonds from account to inventory  
@@ -15,9 +10,15 @@
 - ✅ `/baltop` - View top 10 richest players
 - ✅ `/wiretransfer [player] [amount]` / `/wire [player] [amount]` - Send diamonds to other players (online/offline)
 - ✅ `/tcchelp` - Complete help system with all commands
+- ✅ **NEW: `/createshop [price]`** - Create chest shops from trapped chests
+- ✅ **NEW: `/removeshop`** - Remove your chest shops
+- ✅ **NEW: `/listshops`** - List all your owned shops
 - ✅ UUID-based player data storage (JSON files)
 - ✅ Inventory space validation for withdrawals
 - ✅ Offline player notification system
+- ✅ **NEW: Chest shop system with visual particles**
+- ✅ **NEW: Shop protection (owner-only breaking, hopper protection)**
+- ✅ **NEW: Customer purchase interface with balance validation**
 - ✅ Beautiful command feedback with colors and emojis
 - ✅ Comprehensive error handling with help references
 
@@ -75,7 +76,7 @@ This launches a test server with your mod automatically loaded! No manual setup 
 
 5. **Install your mod**:
    ```bash
-   cp /home/hoormazdp/Documents/GitHub/tcc-diamond-economy/build/libs/tcc-diamond-economy-1.1.0.jar ~/minecraft-test-server/mods/
+   cp /home/hoormazdp/Documents/GitHub/tcc-diamond-economy/build/libs/tcc-diamond-economy-1.2.1.jar ~/minecraft-test-server/mods/
    ```
 
 6. **Start the server**:
@@ -159,6 +160,24 @@ All commands now provide helpful error messages and refer to `/tcchelp` when use
 /baltop              # View richest players
 ```
 
+#### Test Chest Shop System
+```
+# Basic shop creation
+/give @s trapped_chest 5    # Get trapped chests
+# Place a trapped chest, look at it, then:
+/createshop 10              # Create shop with 10 diamonds per item
+/listshops                  # View your shops
+/removeshop                 # Remove shop (look at it first)
+
+# Advanced shop testing
+/give @s diamond_sword 1    # Get items to sell
+# Put the sword in your shop chest
+# Have another player open the chest and try to buy the sword
+# Verify continuous particle effects appear around shop chests (golden + green sparkles)
+# Verify GUI shows "Shop owned by [YourName]" for customers
+# Test hopper protection by placing hopper under shop
+```
+
 ### 3. Multi-Player Testing
 
 1. **Join with multiple accounts** (or use friends)
@@ -179,6 +198,12 @@ All commands now provide helpful error messages and refer to `/tcchelp` when use
    - Have one player disconnect
    - Transfer diamonds to the offline player
    - When they reconnect, they should see notification messages
+7. **Test chest shop marketplace**:
+   - Have Player 1 create shops with different items and prices
+   - Have Player 2 browse shops and make purchases
+   - Verify shop owners get notified of sales
+   - Test that only shop owners can break their shops
+   - Verify particle effects are visible to all players
 
 ### 4. Data Persistence Testing
 
@@ -188,6 +213,7 @@ All commands now provide helpful error messages and refer to `/tcchelp` when use
    ```bash
    ls diamond_economy/
    cat diamond_economy/[your-uuid].json
+   cat diamond_economy/chest_shops.json
    ```
 4. **Restart server and check balances persist**
 
@@ -215,6 +241,24 @@ Example notifications file:
       "timestamp": 1642781234567
     }
   ]
+}
+```
+
+Chest shops are stored in: `server-folder/diamond_economy/chest_shops.json`
+
+Example chest shops file:
+```json
+{
+  "minecraft:overworld:100:64:-200": {
+    "ownerUUID": "550e8400-e29b-41d4-a716-446655440000",
+    "ownerName": "Steve",
+    "worldName": "minecraft:overworld",
+    "x": 100,
+    "y": 64,
+    "z": -200,
+    "pricePerItem": 10,
+    "createdTime": 1642781234567
+  }
 }
 ```
 
@@ -253,6 +297,9 @@ tail -f logs/latest.log
 - **Transfers**: Send diamonds between players (works offline!)
 - **Balance**: Shows current diamond count with gold formatting
 - **Baltop**: Shows top 10 players with medals (🥇🥈🥉) and colors
+- **Chest Shops**: Trapped chests with golden particles, custom shopping interface
+- **Shop Protection**: Only owners can break shops, hoppers cannot access shop inventories
+- **Shop Purchases**: Automatic payment processing with balance validation
 - **Help System**: `/tcchelp` shows comprehensive command guide
 - **Error Messages**: Clear red messages for insufficient funds/space with help references
 - **Success Messages**: Green confirmation messages with new balances

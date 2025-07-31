@@ -4,10 +4,10 @@
 [![Fabric API](https://img.shields.io/badge/Fabric%20API-0.130.0-blue.svg)](https://fabricmc.net)
 [![Java Version](https://img.shields.io/badge/Java-21+-orange.svg)](https://openjdk.org/)
 [![License](https://img.shields.io/badge/License-CC0--1.0-lightgrey.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.1.1-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
+[![Version](https://img.shields.io/badge/Version-1.3.4-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
 [![Server Side](https://img.shields.io/badge/Side-Server-yellow.svg)]()
 
-A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric that allows players to manage their diamond wealth through a secure banking system with transfers, balance management, and offline notifications.
+A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric that allows players to manage their diamond wealth through a secure banking system with transfers, balance management, offline notifications, and chest shops for player-to-player trading.
 
 ## ✨ Features
 
@@ -28,11 +28,23 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 - **Real-time Updates**: Leaderboards reflect current balances instantly
 - **Visual Rankings**: Medal system (🥇🥈🥉) for top players
 
+### 🏪 **Advanced Chest Shop System**
+- **Shop Creation**: Convert trapped chests into shops with custom per-item pricing
+- **Custom Shopping GUI**: Dedicated customer interface separate from chest inventory
+- **Enhanced Visual Effects**: Multiple particle types with orbital sparkles and ambient glows
+- **Shop Protection**: Owner-only access for modifications; hopper protection prevents theft
+- **Automatic Validation**: Shop database integrity checked every 10 seconds, removing destroyed shops
+- **Smart Purchase System**: Left-click for single items, right-click for full stacks
+- **Real-time Notifications**: Shop owners get detailed sale notifications with item names and earnings
+- **Inventory Synchronization**: Accurate item display with enchantment preservation
+
 ### 🛠️ **User Experience**
 - **Comprehensive Help System**: `/tcchelp` with detailed command documentation
 - **Smart Error Handling**: Clear error messages with helpful guidance
 - **Color-coded Feedback**: Green for success, red for errors, gold for balances
 - **Input Validation**: Prevents invalid amounts and edge cases
+- **Rich Visual Effects**: Multiple particle systems for enhanced shop visibility
+- **Intuitive Interface**: Custom GUIs with clear pricing and balance information
 
 ## 🎮 Commands
 
@@ -43,7 +55,12 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 | `/balance` / `/bal` | Check your current diamond balance | `/balance` | All players |
 | `/wiretransfer <player> <amount>` / `/wire <player> <amount>` | Send diamonds to another player | `/wire Steve 25` | All players |
 | `/baltop` | View top 10 richest players | `/baltop` | All players |
+| `/createshop <price>` | Create a chest shop (look at trapped chest) | `/createshop 10` | All players |
+| `/removeshop` | Remove your chest shop (look at shop) | `/removeshop` | All players |
+| `/listshops` | List all your owned chest shops | `/listshops` | All players |
 | `/tcchelp` | Show comprehensive help guide | `/tcchelp` | All players |
+| `/shopvalidate` | Manually validate all shops (Admin) | `/shopvalidate` | OP Level 2+ |
+| `/shopvalidate stats` | Show validation statistics (Admin) | `/shopvalidate stats` | OP Level 2+ |
 
 ## 🚀 Installation
 
@@ -55,7 +72,7 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 
 ### Server Installation
 1. Download the latest release from [Releases](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
-2. Place `tcc-diamond-economy-1.1.0.jar` in your server's `mods/` folder
+2. Place `tcc-diamond-economy-1.3.4.jar` in your server's `mods/` folder
 3. Ensure Fabric API is installed
 4. Start your server
 5. Players can immediately start using the economy system!
@@ -72,6 +89,7 @@ cd tcc-diamond-economy
 The mod works out-of-the-box with no configuration required! Player data is automatically stored in:
 - **Player Balances**: `server-folder/diamond_economy/[player-uuid].json`
 - **Pending Notifications**: `server-folder/diamond_economy/pending_notifications.json`
+- **Chest Shops**: `server-folder/diamond_economy/chest_shops.json`
 
 ## 📖 Usage Examples
 
@@ -89,6 +107,32 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 /wire Alice 50       # Send diamonds to offline player
 ```
 
+### Chest Shop System
+```
+# Place a trapped chest, then:
+/createshop 5        # Create shop with 5 diamonds per item
+/listshops           # View all your shops
+/removeshop          # Remove shop (look at it first)
+
+# Put items in your shop chest - customers will pay automatically!
+# Enhanced particle effects help customers find your shops easily!
+```
+
+### Advanced Shop Features
+```
+# Shops support all item types including:
+- Enchanted weapons and armor (enchantments preserved)
+- Custom named items (names preserved)
+- Potions and special items (all properties maintained)
+- Any stackable or non-stackable items
+
+# Visual effects include:
+- Orbital sparkles around shops
+- Ambient glow effects
+- Golden shower effects for special occasions
+- Multiple particle types for enhanced visibility
+```
+
 ### Getting Help
 ```
 /tcchelp             # View all commands and usage
@@ -101,6 +145,24 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 - **Balance Validation**: Prevents negative balances and overdrafts
 - **Player Verification**: Transfers validate target players exist
 - **Thread-Safe Operations**: Concurrent access protection with ConcurrentHashMap
+- **Shop Protection**: Owner-only access for modifications; protection from manual breaking
+- **Shop Database Validation**: Automatic cleanup of destroyed shops every 10 seconds
+- **Purchase Validation**: Advanced multi-layer validation for secure transactions
+- **Custom GUI Security**: Separate customer interface prevents inventory manipulation
+- **Enchantment Preservation**: All item properties including enchantments are preserved in transactions
+
+## ⚠️ Known Limitations
+
+### Shop Protection
+- **Manual Breaking Protection**: ✅ Shops are protected from unauthorized manual breaking by players
+- **Environmental Damage**: ❌ Shops can still be destroyed by TNT, creeper explosions, fire, lava, and other environmental damage
+- **Database Cleanup**: ✅ The mod automatically detects and removes destroyed shops from the database every 10 seconds
+- **Hopper Protection**: ✅ Hoppers cannot extract items from shop inventories
+
+### Technical Limitations
+- **Minecraft 1.21.8 Block Registration**: Custom indestructible blocks were attempted but couldn't be implemented due to new API restrictions
+- **Event-Based Protection**: Current protection relies on player action events, which don't cover all damage sources
+- **Future Improvements**: Full explosion protection may be possible with future Minecraft/Fabric API updates
 
 ## 📁 Data Storage
 
@@ -125,16 +187,104 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 }
 ```
 
+### Chest Shop System
+```json
+{
+  "overworld:100:64:-200": {
+    "ownerUUID": "550e8400-e29b-41d4-a716-446655440000",
+    "ownerName": "Steve",
+    "worldName": "minecraft:overworld",
+    "x": 100,
+    "y": 64,
+    "z": -200,
+    "pricePerItem": 10,
+    "createdTime": 1642781234567
+  }
+}
+```
+
 ## 🎯 Perfect For
 
-- **Economy Servers**: Create diamond-based server economies
-- **SMP Servers**: Enable player-to-player diamond trading
-- **Minigame Servers**: Reward players with stored diamond wealth
-- **Community Servers**: Foster economic interactions between players
+- **Economy Servers**: Create diamond-based server economies with player-run shops
+- **SMP Servers**: Enable player-to-player diamond trading and marketplace creation
+- **Minigame Servers**: Reward players with stored diamond wealth and shopping systems
+- **Community Servers**: Foster economic interactions between players with chest shops
 
 ## 📋 Version History
 
-### Version 1.1.1 (Current)
+### Version 1.5.0 (Current)
+**🔍 Shop Validation System:**
+- **Automatic Integrity Checking**: Shop database is now validated every 10 seconds
+  - Automatically removes shops that have been destroyed by TNT, creepers, or other environmental damage
+  - Keeps shop database clean and prevents phantom shop issues
+  - Chunk-aware validation (skips unloaded chunks to prevent false positives)
+- **Admin Commands**: New admin tools for shop management
+  - `/shopvalidate` - Manually trigger shop validation check
+  - `/shopvalidate stats` - View validation system statistics
+- **Enhanced Help System**: Updated help command with admin section for operators
+- **Documentation Cleanup**: Removed false claims about explosion protection, now accurately describes actual capabilities
+
+### Version 1.4.0
+**🛡️ Basic Shop Protection:**
+- **Block Break Protection**: Shops are protected from manual block breaking by unauthorized players
+- **Owner Validation**: Only shop owners can break their own shops
+- **Enhanced Error Messages**: Clear protection messages when unauthorized access is attempted
+- **Protection Logging**: All protection events are logged for server monitoring
+- **Known Limitation**: Shops can still be destroyed by TNT, creepers, and environmental damage
+
+### Version 1.3.4
+**🛡️ Initial Protection System:**
+- **Player Break Protection**: Basic protection against manual block breaking
+- **Owner-Only Removal**: Shop owners must use `/removeshop` command to remove shops
+- **Protection Feedback**: Clear messages when protection activates
+- **Event-Based Protection**: Uses PlayerBlockBreakEvents for basic protection
+- **Known Limitation**: Environmental damage (explosions, TNT, etc.) can still destroy shops
+
+### Version 1.3.3
+**✨ Enhanced Shop Experience:**
+- **Fixed Item Display Bug**: Shop messages now show actual item names instead of "Air"
+- **Enhanced Particle Effects**: More frequent and varied particle effects for better shop visibility
+  - Increased particle frequency (every 0.5 seconds)
+  - Added orbital sparkles around shops
+  - Multiple particle types: composter, happy villager, effect, enchant particles
+  - Ambient glow effects with END_ROD particles
+  - Enhanced golden shower effects for special occasions
+- **Improved Owner Notifications**: Bold, prominent sale notifications with actual item names and earnings display
+
+### Version 1.3.2
+**🔧 Critical Bug Fixes:**
+- **Inventory Synchronization Fix**: Resolved issue where shop items appeared as "Air" in customer GUI
+- **Enhanced Client Sync**: Added proper inventory synchronization to ensure accurate item display
+- **Performance Optimization**: Improved GUI handling for better client-server communication
+
+### Version 1.3.1
+**🛡️ Security & Protection Enhancements:**
+- **Enhanced Shop Protection**: Complete hopper protection preventing automated item extraction
+- **Advanced Purchase Validation**: Multi-layer validation system for secure transactions
+- **Improved Error Handling**: Better error messages for edge cases and invalid operations
+
+### Version 1.3.0
+**🎮 Custom Shopping Interface:**
+- **Dedicated Customer GUI**: Separate shopping interface for customers (not chest inventory)
+- **Enhanced Purchase System**: Left-click for single items, right-click for full stacks
+- **Real-time Balance Display**: Shows customer balance and item pricing in shop interface
+- **Transaction Security**: Bulletproof payment processing with inventory space validation
+
+### Version 1.2.0
+**🏪 Major Update - Chest Shop System:**
+- Added complete chest shop functionality for player-to-player trading
+- New commands: `/createshop`, `/removeshop`, `/listshops`
+- Visual particle effects distinguish shops from regular chests
+- Shop protection: only owners can break shops, hoppers cannot access shop inventories
+- Custom shopping interface with automatic payment processing
+- Real-time notifications for shop owners when items are sold
+
+**🔧 Enhancements:**
+- Updated help system with comprehensive shop documentation
+- Enhanced error handling for shop operations
+- Integrated shop system with existing balance management
+
+### Version 1.1.1
 **🔧 Command Rename:**
 - Changed `/transfer` to `/wiretransfer` and `/wire` (shorthand) to avoid conflict with Minecraft's built-in command
 - Updated all documentation and help text
