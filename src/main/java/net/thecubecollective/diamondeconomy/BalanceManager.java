@@ -129,6 +129,12 @@ public class BalanceManager {
         }
     }
     
+    // Get total money in circulation across all players
+    public BigDecimal getTotalMoney() {
+        return balanceCache.values().stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+    
     private static class PlayerBalance {
         public final UUID uuid;
         public final BigDecimal balance;

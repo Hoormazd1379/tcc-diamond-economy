@@ -38,17 +38,26 @@ public class ChestShopManager {
     public static class ChestShop {
         public UUID ownerUUID;
         public String ownerName;
+        public String shopName; // New field for shop name
         public String worldName;
         public int x, y, z;
         public BigDecimal pricePerItem;
         public Long legacyPricePerItem; // For backward compatibility during migration
         public long createdTime;
         
+        // Shop statistics
+        public BigDecimal totalSales = BigDecimal.ZERO; // Total money earned
+        public int totalItemsSold = 0; // Total number of items sold
+        public int totalTransactions = 0; // Total number of purchases
+        public long lastSaleTime = 0; // Timestamp of last sale
+        public boolean lowStockNotified = false; // To prevent spam notifications
+        
         public ChestShop() {} // For Gson
         
-        public ChestShop(UUID ownerUUID, String ownerName, BlockPos pos, String worldName, BigDecimal pricePerItem) {
+        public ChestShop(UUID ownerUUID, String ownerName, String shopName, BlockPos pos, String worldName, BigDecimal pricePerItem) {
             this.ownerUUID = ownerUUID;
             this.ownerName = ownerName;
+            this.shopName = shopName;
             this.worldName = worldName;
             this.x = pos.getX();
             this.y = pos.getY();
@@ -56,11 +65,24 @@ public class ChestShopManager {
             this.pricePerItem = pricePerItem;
             this.legacyPricePerItem = null;
             this.createdTime = System.currentTimeMillis();
+            this.totalSales = BigDecimal.ZERO;
+            this.totalItemsSold = 0;
+            this.totalTransactions = 0;
+            this.lastSaleTime = 0;
+            this.lowStockNotified = false;
         }
         
         // Legacy constructor for backward compatibility
         public ChestShop(UUID ownerUUID, String ownerName, BlockPos pos, String worldName, long pricePerItem) {
-            this(ownerUUID, ownerName, pos, worldName, BigDecimal.valueOf(pricePerItem));
+            this(ownerUUID, ownerName, "Unnamed Shop", pos, worldName, BigDecimal.valueOf(pricePerItem));
+        }
+        
+        // Method to record a sale
+        public void recordSale(int quantity, BigDecimal totalPrice) {
+            this.totalSales = this.totalSales.add(totalPrice);
+            this.totalItemsSold += quantity;
+            this.totalTransactions++;
+            this.lastSaleTime = System.currentTimeMillis();
         }
         
         public BigDecimal getPrice() {
@@ -96,26 +118,31 @@ public class ChestShopManager {
         }
     }
     
-    public boolean createShop(UUID ownerUUID, String ownerName, BlockPos pos, World world, BigDecimal pricePerItem) {
+    public boolean createShop(UUID ownerUUID, String ownerName, String shopName, BlockPos pos, World world, BigDecimal pricePerItem) {
         String locationKey = getLocationKey(world, pos);
         
         if (shops.containsKey(locationKey)) {
             return false; // Shop already exists at this location
         }
         
-        ChestShop shop = new ChestShop(ownerUUID, ownerName, pos, world.getRegistryKey().getValue().toString(), pricePerItem);
+        ChestShop shop = new ChestShop(ownerUUID, ownerName, shopName, pos, world.getRegistryKey().getValue().toString(), pricePerItem);
         shops.put(locationKey, shop);
         saveShops();
         
-        Tccdiamondeconomy.LOGGER.info("Created chest shop at {} for player {} with price {} diamonds per item", 
-                locationKey, ownerName, BalanceManager.formatBalance(pricePerItem));
+        Tccdiamondeconomy.LOGGER.info("Created chest shop '{}' at {} for player {} with price {} diamonds per item", 
+                shopName, locationKey, ownerName, BalanceManager.formatBalance(pricePerItem));
         
         return true;
     }
     
     // Legacy method for backward compatibility
+    public boolean createShop(UUID ownerUUID, String ownerName, BlockPos pos, World world, BigDecimal pricePerItem) {
+        return createShop(ownerUUID, ownerName, "Unnamed Shop", pos, world, pricePerItem);
+    }
+    
+    // Legacy method for backward compatibility
     public boolean createShop(UUID ownerUUID, String ownerName, BlockPos pos, World world, long pricePerItem) {
-        return createShop(ownerUUID, ownerName, pos, world, BigDecimal.valueOf(pricePerItem));
+        return createShop(ownerUUID, ownerName, "Unnamed Shop", pos, world, BigDecimal.valueOf(pricePerItem));
     }
     
     public boolean removeShop(BlockPos pos, World world, UUID playerUUID) {
@@ -209,6 +236,87 @@ public class ChestShopManager {
             GSON.toJson(shops, writer);
         } catch (IOException e) {
             Tccdiamondeconomy.LOGGER.error("Failed to save chest shops", e);
+        }
+    }
+    
+    // Record a sale for statistics
+    public void recordSale(BlockPos pos, World world, int quantity, BigDecimal totalPrice) {
+        String locationKey = getLocationKey(world, pos);
+        ChestShop shop = shops.get(locationKey);
+        if (shop != null) {
+            shop.recordSale(quantity, totalPrice);
+            saveShops();
+        }
+    }
+    
+    // Check if shop has low stock
+    public boolean hasLowStock(BlockPos pos, World world) {
+        // Check if inventory has less than 10 items total
+        // This will be implemented in the shop interaction logic
+        return false; // Placeholder for now
+    }
+    
+    // Update shop price
+    public boolean updateShopPrice(BlockPos pos, World world, BigDecimal newPrice) {
+        String locationKey = getLocationKey(world, pos);
+        ChestShop shop = shops.get(locationKey);
+        if (shop != null) {
+            shop.pricePerItem = newPrice;
+            saveShops();
+            return true;
+        }
+        return false;
+    }
+    
+    // Update shop name
+    public boolean updateShopName(BlockPos pos, World world, String newName) {
+        String locationKey = getLocationKey(world, pos);
+        ChestShop shop = shops.get(locationKey);
+        if (shop != null) {
+            shop.shopName = newName;
+            saveShops();
+            return true;
+        }
+        return false;
+    }
+    
+    // Get economy statistics
+    public EconomyStats getEconomyStats() {
+        BigDecimal totalMoney = BigDecimal.ZERO;
+        int totalShops = shops.size();
+        int totalTransactions = 0;
+        int totalItemsSold = 0;
+        ChestShop mostSuccessfulShop = null;
+        BigDecimal highestSales = BigDecimal.ZERO;
+        
+        for (ChestShop shop : shops.values()) {
+            totalMoney = totalMoney.add(shop.totalSales);
+            totalTransactions += shop.totalTransactions;
+            totalItemsSold += shop.totalItemsSold;
+            
+            if (shop.totalSales.compareTo(highestSales) > 0) {
+                highestSales = shop.totalSales;
+                mostSuccessfulShop = shop;
+            }
+        }
+        
+        return new EconomyStats(totalMoney, totalShops, totalTransactions, totalItemsSold, mostSuccessfulShop);
+    }
+    
+    // Economy statistics data class
+    public static class EconomyStats {
+        public final BigDecimal totalMoney;
+        public final int totalShops;
+        public final int totalTransactions;
+        public final int totalItemsSold;
+        public final ChestShop mostSuccessfulShop;
+        
+        public EconomyStats(BigDecimal totalMoney, int totalShops, int totalTransactions, int totalItemsSold, ChestShop mostSuccessfulShop) {
+            this.totalMoney = totalMoney;
+            this.totalShops = totalShops;
+            this.totalTransactions = totalTransactions;
+            this.totalItemsSold = totalItemsSold;
+            this.mostSuccessfulShop = mostSuccessfulShop;
         }
     }
 }

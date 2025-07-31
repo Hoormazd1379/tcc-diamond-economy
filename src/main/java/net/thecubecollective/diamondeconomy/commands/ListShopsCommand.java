@@ -8,6 +8,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.thecubecollective.diamondeconomy.BalanceManager;
 import net.thecubecollective.diamondeconomy.ChestShopManager;
 import net.thecubecollective.diamondeconomy.Tccdiamondeconomy;
 
@@ -48,20 +49,25 @@ public class ListShopsCommand {
         for (int i = 0; i < playerShops.size(); i++) {
             ChestShopManager.ChestShop shop = playerShops.get(i);
             
+            // Display shop name (fallback to "Unnamed Shop" if null/empty)
+            String displayName = (shop.shopName != null && !shop.shopName.trim().isEmpty()) ? shop.shopName : "Unnamed Shop";
+            
             player.sendMessage(Text.literal((i + 1) + ". ")
                     .formatted(Formatting.WHITE)
-                    .append(Text.literal("📍 " + shop.x + ", " + shop.y + ", " + shop.z)
-                            .formatted(Formatting.AQUA))
-                    .append(Text.literal(" in " + getWorldDisplayName(shop.worldName))
-                            .formatted(Formatting.GRAY)), false);
+                    .append(Text.literal("🏪 " + displayName)
+                            .formatted(Formatting.AQUA, Formatting.BOLD)), false);
             
-            player.sendMessage(Text.literal("   💎 Price: " + shop.pricePerItem + " diamonds per item")
+            player.sendMessage(Text.literal("   📍 Location: " + shop.x + ", " + shop.y + ", " + shop.z)
+                    .formatted(Formatting.GRAY)
+                    .append(Text.literal(" in " + getWorldDisplayName(shop.worldName))
+                            .formatted(Formatting.DARK_GRAY)), false);
+            
+            player.sendMessage(Text.literal("   💎 Price: " + BalanceManager.formatBalance(shop.pricePerItem) + " diamonds per item")
                     .formatted(Formatting.YELLOW), false);
             
-            // Calculate days since creation
-            long daysSinceCreation = (System.currentTimeMillis() - shop.createdTime) / (1000 * 60 * 60 * 24);
-            player.sendMessage(Text.literal("   📅 Created: " + daysSinceCreation + " days ago")
-                    .formatted(Formatting.GRAY), false);
+            // Show total sales instead of creation date
+            player.sendMessage(Text.literal("   � Total Sales: " + BalanceManager.formatBalance(shop.totalSales) + " diamonds")
+                    .formatted(Formatting.GREEN), false);
             
             if (i < playerShops.size() - 1) {
                 player.sendMessage(Text.literal(""), false); // Empty line between shops

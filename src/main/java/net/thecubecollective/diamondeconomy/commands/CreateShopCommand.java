@@ -2,6 +2,7 @@ package net.thecubecollective.diamondeconomy.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.block.Blocks;
@@ -27,21 +28,32 @@ public class CreateShopCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(CommandManager.literal("createshop")
                 .then(CommandManager.argument("price", DoubleArgumentType.doubleArg(0.01))
+                        .then(CommandManager.argument("shopName", StringArgumentType.greedyString())
+                                .executes(CreateShopCommand::createShopWithName))
                         .executes(CreateShopCommand::createShop))
                 .executes(ctx -> {
-                    ctx.getSource().sendError(Text.literal("Usage: /createshop <price_per_item>")
+                    ctx.getSource().sendError(Text.literal("Usage: /createshop <price_per_item> [shop_name]")
                             .formatted(Formatting.RED));
                     ctx.getSource().sendMessage(Text.literal("Look at a trapped chest and specify the price in diamonds per item")
                             .formatted(Formatting.YELLOW));
                     ctx.getSource().sendMessage(Text.literal("Example: /createshop 5.5 (5.5 diamonds per item)")
                             .formatted(Formatting.GRAY));
-                    ctx.getSource().sendMessage(Text.literal("Example: /createshop 0.1 (0.1 diamonds per item)")
+                    ctx.getSource().sendMessage(Text.literal("Example: /createshop 0.1 \"My Food Shop\" (named shop)")
                             .formatted(Formatting.GRAY));
                     return 0;
                 }));
     }
     
     private static int createShop(CommandContext<ServerCommandSource> context) {
+        return createShopInternal(context, "My Shop");
+    }
+    
+    private static int createShopWithName(CommandContext<ServerCommandSource> context) {
+        String shopName = StringArgumentType.getString(context, "shopName");
+        return createShopInternal(context, shopName);
+    }
+    
+    private static int createShopInternal(CommandContext<ServerCommandSource> context, String shopName) {
         ServerCommandSource source = context.getSource();
         
         if (!(source.getEntity() instanceof ServerPlayerEntity player)) {
@@ -91,18 +103,18 @@ public class CreateShopCommand {
             return 0;
         }
         
-        // Create the shop
+        // Create the shop with name
         boolean success = shopManager.createShop(
                 player.getUuid(), 
-                player.getName().getString(), 
+                player.getName().getString(),
+                shopName,
                 targetPos, 
                 world, 
                 pricePerItem
         );
         
         if (success) {
-            // Custom blocks temporarily disabled - using standard protection
-            source.sendMessage(Text.literal("✅ Shop created successfully!")
+            source.sendMessage(Text.literal("✅ Shop \"" + shopName + "\" created successfully!")
                     .formatted(Formatting.GREEN, Formatting.BOLD));
             source.sendMessage(Text.literal("🛡️ Your shop is protected from block breaking!")
                     .formatted(Formatting.AQUA));
@@ -115,8 +127,8 @@ public class CreateShopCommand {
             source.sendMessage(Text.literal("🛠️ Use /removeshop while looking at this shop to safely remove it")
                     .formatted(Formatting.GRAY));
             
-            Tccdiamondeconomy.LOGGER.info("Player {} created a shop at {} with price {} diamonds per item", 
-                    player.getName().getString(), targetPos, pricePerItem);
+            Tccdiamondeconomy.LOGGER.info("Player {} created shop '{}' at {} with price {} diamonds per item", 
+                    player.getName().getString(), shopName, targetPos, pricePerItem);
         } else {
             source.sendError(Text.literal("Failed to create shop! Please try again.")
                     .formatted(Formatting.RED));

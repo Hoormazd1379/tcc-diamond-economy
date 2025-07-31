@@ -155,6 +155,10 @@ public class ShopBrowserScreenHandler extends GenericContainerScreenHandler {
         balanceManager.removeBalance(player.getUuid(), totalCost);
         balanceManager.addBalance(shop.ownerUUID, totalCost);
         
+        // Record sale statistics
+        ChestShopManager shopManager = Tccdiamondeconomy.getChestShopManager();
+        shopManager.recordSale(pos, world, quantityToBuy, totalCost);
+        
         // Remove items from the actual shop inventory
         if (quantityToBuy >= actualItem.getCount()) {
             actualShopInventory.setStack(slot, ItemStack.EMPTY);

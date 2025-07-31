@@ -5,6 +5,41 @@ All notable changes to TCC Diamond Economy will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2025-07-31
+
+### 🏪 Shop Management & Analytics
+- **Added** Shop naming system: Shops can now be created with custom names via `/createshop <price> [name]`
+- **Added** `/editshop` command for shop owners to modify their shops:
+  - `/editshop price <amount>` - Change shop price per item
+  - `/editshop name <new_name>` - Change shop name
+  - Only shop owners can edit their shops
+  - All shop statistics are preserved during edits
+- **Enhanced** Shop GUI titles to display shop name and owner (e.g., "🏪 My Food Shop - Steve")
+- **Added** Comprehensive shop statistics tracking:
+  - Total sales revenue per shop
+  - Total items sold per shop
+  - Total number of transactions per shop
+  - Last sale timestamp for each shop
+- **Added** `/shopstats` command to view detailed statistics for any shop (available to all players)
+- **Enhanced** `/listshops` command to display shop names and total sales instead of creation dates
+
+### 📊 Economy Analytics
+- **Added** `/economystats` command showing server-wide economy statistics:
+  - Total money in circulation across all players
+  - Total shop sales revenue
+  - Total economic activity (circulation + sales)
+  - Total number of shops and transactions
+  - Most successful shop with owner details
+  - Fun statistics like average transaction values
+- **Added** Economy-wide analytics system with comprehensive data tracking
+
+### 🔧 Technical Improvements
+- **Enhanced** ChestShop data structure with statistics fields and shop naming
+- **Added** Automatic sales recording for all shop transactions
+- **Added** `getTotalMoney()` method to BalanceManager for economy-wide statistics
+- **Improved** Shop creation system with optional naming parameter
+- **Enhanced** Data persistence with backward compatibility for existing shops
+
 ## [1.5.2] - 2025-07-31
 
 ### 🎨 Visual & UX Improvements

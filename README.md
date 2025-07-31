@@ -4,7 +4,7 @@
 [![Fabric API](https://img.shields.io/badge/Fabric%20API-0.130.0-blue.svg)](https://fabricmc.net)
 [![Java Version](https://img.shields.io/badge/Java-21+-orange.svg)](https://openjdk.org/)
 [![License](https://img.shields.io/badge/License-CC0--1.0-lightgrey.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.5.2-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
+[![Version](https://img.shields.io/badge/Version-1.6.0-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
 [![Server Side](https://img.shields.io/badge/Side-Server-yellow.svg)]()
 
 A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric that allows players to manage their diamond wealth through a secure banking system with transfers, balance management, offline notifications, and chest shops for player-to-player trading.
@@ -26,15 +26,25 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 - **Transfer Validation**: Prevents self-transfers and validates player existence
 - **Transaction Security**: All transfers are atomic and validated
 
+### 📊 **Economy Analytics**
+- **Server Statistics**: View economy-wide data with `/economystats` command
+- **Shop Performance**: Individual shop analytics showing sales and transaction data
+- **Economic Health**: Track total money circulation and economic activity
+- **Leaderboards**: Top performing shops and wealthiest players
+- **Real-time Insights**: Live statistics update with every transaction
+
 ### 📊 **Leaderboards & Statistics**
 - **Baltop System**: View the top 10 richest players with beautiful rankings
 - **Real-time Updates**: Leaderboards reflect current balances instantly
 - **Visual Rankings**: Medal system (🥇🥈🥉) for top players
 
 ### 🏪 **Advanced Chest Shop System**
+- **Named Shops**: Create shops with custom names like `/createshop 1.5 "My Food Shop"`
 - **Fractional Pricing**: Create shops with decimal prices like `/createshop 1.5` or `/createshop 0.25`
 - **Shop Creation**: Convert trapped chests into shops with custom per-item pricing
-- **Custom Shopping GUI**: Dedicated customer interface separate from chest inventory
+- **Custom Shopping GUI**: Dedicated customer interface showing shop name and owner
+- **Shop Statistics**: Track total sales, items sold, and transaction history per shop
+- **Analytics**: View detailed shop performance with `/shopstats` command
 - **Enhanced Visual Effects**: Multiple particle types with orbital sparkles and ambient glows
 - **Shop Protection**: Owner-only access for modifications; hopper protection prevents theft
 - **Automatic Validation**: Shop database integrity checked every 10 seconds, removing destroyed shops
@@ -60,9 +70,13 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 | `/balance` / `/bal` | Check your current diamond balance | `/balance` | All players |
 | `/wiretransfer <player> <amount>` / `/wire <player> <amount>` | Send diamonds to another player | `/wire Steve 25` | All players |
 | `/baltop` | View top 10 richest players | `/baltop` | All players |
-| `/createshop <price>` | Create a chest shop (look at trapped chest) | `/createshop 10` | All players |
+| `/createshop <price> [name]` | Create a chest shop (look at trapped chest) | `/createshop 10 "Food Shop"` | All players |
+| `/editshop price <amount>` | Change shop price per item (look at your shop) | `/editshop price 2.5` | Shop owners |
+| `/editshop name <name>` | Change shop name (look at your shop) | `/editshop name "New Name"` | Shop owners |
 | `/removeshop` | Remove your chest shop (look at shop) | `/removeshop` | All players |
 | `/listshops` | List all your owned chest shops | `/listshops` | All players |
+| `/shopstats` | View shop statistics (look at any shop) | `/shopstats` | All players |
+| `/economystats` | View server economy statistics | `/economystats` | All players |
 | `/tcchelp` | Show comprehensive help guide | `/tcchelp` | All players |
 | `/shopvalidate` | Manually validate all shops (Admin) | `/shopvalidate` | OP Level 2+ |
 | `/shopvalidate stats` | Show validation statistics (Admin) | `/shopvalidate stats` | OP Level 2+ |
@@ -77,7 +91,7 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 
 ### Server Installation
 1. Download the latest release from [Releases](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
-2. Place `tcc-diamond-economy-1.5.2.jar` in your server's `mods/` folder
+2. Place `tcc-diamond-economy-1.6.0.jar` in your server's `mods/` folder
 3. Ensure Fabric API is installed
 4. Start your server
 5. Players can immediately start using the economy system!
@@ -116,14 +130,21 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 ### Fractional Chest Shop System
 ```
 # Place a trapped chest, then:
-/createshop 1.5      # Create shop with 1.5 diamonds per item
-/createshop 0.1      # Cheap items at 0.1 diamonds each
-/createshop 25.75    # Premium pricing with fractional precision
-/listshops           # View all your shops with fractional prices
-/removeshop          # Remove shop (look at it first)
+/createshop 1.5 "Steve's Food Market"  # Named shop with fractional pricing
+/createshop 0.1 "Cheap Items"          # Budget-friendly shop
+/createshop 25.75                      # Premium pricing (unnamed shop)
 
-# Put items in your shop chest - customers pay fractional amounts automatically!
-# Enhanced particle effects help customers find your shops easily!
+# Edit your existing shops:
+/editshop price 2.0                    # Change shop price (look at your shop)
+/editshop name "Updated Shop Name"     # Change shop name (look at your shop)
+
+# View and manage shops:
+/listshops                             # View all your shops with names and sales
+/shopstats                             # View detailed shop statistics (look at any shop)
+/economystats                          # View server-wide economy statistics
+
+# Shop GUI will show: "🏪 Steve's Food Market - Steve"
+# Enhanced analytics track all sales and performance metrics
 ```
 
 ### Advanced Shop Features
@@ -233,7 +254,16 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 
 ## 📋 Version History
 
-### Version 1.5.2 (Current)
+### Version 1.6.0 (Current)
+**🏪 Shop Management & Analytics:**
+- **Named Shops**: Create shops with custom names for better identification
+- **Shop Statistics**: Track sales, transactions, and performance metrics per shop
+- **Economy Analytics**: Server-wide statistics with `/economystats` command
+- **Enhanced Shop Lists**: Display shop names and total sales instead of creation dates
+- **Shop Performance**: View detailed statistics for any shop with `/shopstats`
+- **Smart GUI Titles**: Shop interfaces show both shop name and owner
+
+### Version 1.5.2
 **🎨 Visual & UX Improvements:**
 - **Fixed** Baltop ranking colors - 1st place now bright yellow, 3rd place bronze, 4th-10th gray
 - **Simplified** Particle effects by removing totem and end rod particles for cleaner visuals

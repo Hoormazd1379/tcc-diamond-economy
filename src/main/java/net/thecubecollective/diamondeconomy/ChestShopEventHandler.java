@@ -153,10 +153,14 @@ public class ChestShopEventHandler {
                     pos, 
                     world
                 ),
-                Text.literal("🏪 " + shop.ownerName + "'s Shop")
+                Text.literal("🏪 " + getShopDisplayName(shop) + " - " + shop.ownerName)
             ));
         }
         
         return ActionResult.SUCCESS; // Prevent normal chest opening for customers
+    }
+    
+    private static String getShopDisplayName(ChestShopManager.ChestShop shop) {
+        return (shop.shopName != null && !shop.shopName.trim().isEmpty()) ? shop.shopName : "Unnamed Shop";
     }
 }

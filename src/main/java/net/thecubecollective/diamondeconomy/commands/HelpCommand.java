@@ -58,14 +58,23 @@ public class HelpCommand {
         player.sendMessage(Text.literal("🏪 Shop Commands:")
                 .formatted(Formatting.GOLD, Formatting.BOLD), false);
         
-        player.sendMessage(Text.literal("/createshop <price>").formatted(Formatting.GREEN)
+        player.sendMessage(Text.literal("/createshop <price> [name]").formatted(Formatting.GREEN)
                 .append(Text.literal(" - Create a chest shop (look at trapped chest)").formatted(Formatting.WHITE)), false);
+        
+        player.sendMessage(Text.literal("/editshop price <amount>").formatted(Formatting.GREEN)
+                .append(Text.literal(" - Change shop price (look at your shop)").formatted(Formatting.WHITE)), false);
+        
+        player.sendMessage(Text.literal("/editshop name <name>").formatted(Formatting.GREEN)
+                .append(Text.literal(" - Change shop name (look at your shop)").formatted(Formatting.WHITE)), false);
         
         player.sendMessage(Text.literal("/removeshop").formatted(Formatting.GREEN)
                 .append(Text.literal(" - Remove your chest shop (look at your shop)").formatted(Formatting.WHITE)), false);
         
         player.sendMessage(Text.literal("/listshops").formatted(Formatting.GREEN)
                 .append(Text.literal(" - List all your chest shops").formatted(Formatting.WHITE)), false);
+        
+        player.sendMessage(Text.literal("/shopstats").formatted(Formatting.GREEN)
+                .append(Text.literal(" - View shop statistics (look at any shop)").formatted(Formatting.WHITE)), false);
         
         player.sendMessage(Text.literal(""), false); // Empty line
         
@@ -75,6 +84,9 @@ public class HelpCommand {
         
         player.sendMessage(Text.literal("/baltop").formatted(Formatting.GREEN)
                 .append(Text.literal(" - View top 10 richest players").formatted(Formatting.WHITE)), false);
+        
+        player.sendMessage(Text.literal("/economystats").formatted(Formatting.GREEN)
+                .append(Text.literal(" - View server economy statistics").formatted(Formatting.WHITE)), false);
         
         player.sendMessage(Text.literal("/tcchelp").formatted(Formatting.GREEN)
                 .append(Text.literal(" - Show this help message").formatted(Formatting.WHITE)), false);
