@@ -5,6 +5,13 @@ All notable changes to TCC Diamond Economy will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2025-07-31
+
+### 🔧 Quality of Life Improvement
+- **Enhanced** `/wiretransfer` and `/wire` commands with tab completion for online player names
+- **Improved** Player lookup system with multiple fallback methods for offline transfers
+- **Maintained** Full backward compatibility for all transfer types
+
 ## [1.6.0] - 2025-07-31
 
 ### 🏪 Shop Management & Analytics

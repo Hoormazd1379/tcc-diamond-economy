@@ -135,6 +135,55 @@ public class BalanceManager {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
     
+    // Find a player's UUID by their name (for offline transfers)
+    // This method checks all balance files to find a player who has played before
+    public UUID findPlayerUUIDByName(String playerName) {
+        try {
+            if (!Files.exists(balanceDirectory)) {
+                return null;
+            }
+            
+            // Go through all balance files to find a matching player
+            return Files.list(balanceDirectory)
+                    .filter(path -> path.toString().endsWith(BALANCE_FILE_EXTENSION))
+                    .map(this::extractUUIDFromFile)
+                    .filter(Objects::nonNull)
+                    .filter(uuid -> {
+                        // Check multiple sources for the player name
+                        // 1. Try user cache first (fast)
+                        Optional<String> cachedName = Tccdiamondeconomy.getServer().getUserCache()
+                                .getByUuid(uuid)
+                                .map(profile -> profile.getName());
+                        
+                        if (cachedName.isPresent()) {
+                            return cachedName.get().equalsIgnoreCase(playerName);
+                        }
+                        
+                        // 2. If not in cache, we found a UUID but can't verify the name
+                        // This is a limitation, but we'll skip this UUID for safety
+                        return false;
+                    })
+                    .findFirst()
+                    .orElse(null);
+                    
+        } catch (IOException e) {
+            Tccdiamondeconomy.LOGGER.error("Failed to search for player UUID by name: " + playerName, e);
+            return null;
+        }
+    }
+    
+    private UUID extractUUIDFromFile(Path balanceFile) {
+        try {
+            String fileName = balanceFile.getFileName().toString();
+            // Remove the .json extension
+            String uuidString = fileName.substring(0, fileName.length() - BALANCE_FILE_EXTENSION.length());
+            return UUID.fromString(uuidString);
+        } catch (IllegalArgumentException e) {
+            Tccdiamondeconomy.LOGGER.warn("Invalid UUID in balance file name: " + balanceFile);
+            return null;
+        }
+    }
+    
     private static class PlayerBalance {
         public final UUID uuid;
         public final BigDecimal balance;
