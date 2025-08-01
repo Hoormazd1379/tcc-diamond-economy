@@ -4,7 +4,7 @@
 [![Fabric API](https://img.shields.io/badge/Fabric%20API-0.130.0-blue.svg)](https://fabricmc.net)
 [![Java Version](https://img.shields.io/badge/Java-21+-orange.svg)](https://openjdk.org/)
 [![License](https://img.shields.io/badge/License-CC0--1.0-lightgrey.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.6.0-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
+[![Version](https://img.shields.io/badge/Version-1.6.1-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
 [![Server Side](https://img.shields.io/badge/Side-Server-yellow.svg)]()
 
 A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric that allows players to manage their diamond wealth through a secure banking system with transfers, balance management, offline notifications, and chest shops for player-to-player trading.
@@ -91,7 +91,7 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 
 ### Server Installation
 1. Download the latest release from [Releases](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
-2. Place `tcc-diamond-economy-1.6.0.jar` in your server's `mods/` folder
+2. Place `tcc-diamond-economy-1.6.1.jar` in your server's `mods/` folder
 3. Ensure Fabric API is installed
 4. Start your server
 5. Players can immediately start using the economy system!
@@ -254,7 +254,13 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 
 ## 📋 Version History
 
-### Version 1.6.0 (Current)
+### Version 1.6.1 (Current)
+**🔧 Quality of Life Update:**
+- **Enhanced Wire Transfer Commands**: Added tab completion support for `/wiretransfer` and `/wire` commands
+- **Tab Completion**: Press Tab when typing player names to see autocomplete suggestions for online players
+- **Robust Offline Transfers**: Improved system for transferring to players who are currently offline
+
+### Version 1.6.0
 **🏪 Shop Management & Analytics:**
 - **Named Shops**: Create shops with custom names for better identification
 - **Shop Statistics**: Track sales, transactions, and performance metrics per shop
