@@ -4,7 +4,10 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.ChestBlock;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.ChestBlockEntity;
+import net.minecraft.block.enums.ChestType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
@@ -68,19 +71,35 @@ public class ChestShopEventHandler {
                 }
                 
                 BlockPos pos = shop.getBlockPos();
-                BlockState state = world.getBlockState(pos);
                 
-                // Check if the shop block still exists (trapped chest only - custom blocks disabled)
-                if (!state.isOf(Blocks.TRAPPED_CHEST)) {
-                    // Shop block was destroyed somehow, remove from registry
+                // For double chest shops, validate that ALL parts still exist
+                java.util.List<BlockPos> allPositions = net.thecubecollective.diamondeconomy.TrappedChestUtils.getChestPositions(pos, world);
+                boolean allPartsExist = true;
+                
+                for (BlockPos chestPos : allPositions) {
+                    BlockState chestState = world.getBlockState(chestPos);
+                    if (!chestState.isOf(Blocks.TRAPPED_CHEST)) {
+                        allPartsExist = false;
+                        break;
+                    }
+                }
+                
+                // Check if any part of the shop was destroyed
+                if (!allPartsExist) {
+                    // Shop block(s) were destroyed somehow, remove from registry
                     shopManager.removeShopDirect(pos, shop.worldName, shop.ownerUUID);
                     removedShops.add(shop.ownerName + " at " + pos);
                     
                     // Try to notify owner if they're online
                     ServerPlayerEntity owner = server.getPlayerManager().getPlayer(shop.ownerUUID);
                     if (owner != null) {
-                        owner.sendMessage(Text.literal("⚠️ Your shop at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + " was destroyed!")
-                                .formatted(Formatting.RED), false);
+                        if (allPositions.size() > 1) {
+                            owner.sendMessage(Text.literal("⚠️ Your double chest shop at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + " was destroyed!")
+                                    .formatted(Formatting.RED), false);
+                        } else {
+                            owner.sendMessage(Text.literal("⚠️ Your shop at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + " was destroyed!")
+                                    .formatted(Formatting.RED), false);
+                        }
                         owner.sendMessage(Text.literal("🛡️ The shop has been removed from the registry.")
                                 .formatted(Formatting.YELLOW), false);
                     }
@@ -143,12 +162,15 @@ public class ChestShopEventHandler {
         
         // Open custom shop browser interface for customers
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof Inventory inventory && player instanceof ServerPlayerEntity serverPlayer) {
+        if (blockEntity instanceof Inventory && player instanceof ServerPlayerEntity serverPlayer) {
+            // For double chests, we need to get the combined inventory
+            Inventory shopInventory = getShopInventory(world, pos);
+            
             serverPlayer.openHandledScreen(new SimpleNamedScreenHandlerFactory(
                 (syncId, playerInventory, playerEntity) -> new net.thecubecollective.diamondeconomy.gui.ShopBrowserScreenHandler(
                     syncId, 
                     playerInventory, 
-                    inventory, 
+                    shopInventory, 
                     shop, 
                     pos, 
                     world
@@ -162,5 +184,35 @@ public class ChestShopEventHandler {
     
     private static String getShopDisplayName(ChestShopManager.ChestShop shop) {
         return (shop.shopName != null && !shop.shopName.trim().isEmpty()) ? shop.shopName : "Unnamed Shop";
+    }
+    
+    /**
+     * Gets the complete inventory for a shop, handling both single and double trapped chests
+     */
+    private static Inventory getShopInventory(World world, BlockPos pos) {
+        BlockState state = world.getBlockState(pos);
+        
+        if (!state.isOf(Blocks.TRAPPED_CHEST)) {
+            // Fallback to block entity if not a trapped chest
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            return blockEntity instanceof Inventory ? (Inventory) blockEntity : null;
+        }
+        
+        // Check if this is a double chest by looking at the chest type
+        if (state.getBlock() instanceof ChestBlock) {
+            ChestType chestType = state.get(ChestBlock.CHEST_TYPE);
+            
+            if (chestType != ChestType.SINGLE) {
+                // This is a double chest, get the DoubleChestInventory
+                BlockEntity blockEntity = world.getBlockEntity(pos);
+                if (blockEntity instanceof ChestBlockEntity) {
+                    return ChestBlock.getInventory((ChestBlock) state.getBlock(), state, world, pos, true);
+                }
+            }
+        }
+        
+        // Single chest or fallback
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        return blockEntity instanceof Inventory ? (Inventory) blockEntity : null;
     }
 }

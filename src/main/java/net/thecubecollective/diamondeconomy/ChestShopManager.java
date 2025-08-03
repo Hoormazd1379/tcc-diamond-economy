@@ -10,6 +10,7 @@ import net.minecraft.world.World;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -119,18 +120,22 @@ public class ChestShopManager {
     }
     
     public boolean createShop(UUID ownerUUID, String ownerName, String shopName, BlockPos pos, World world, BigDecimal pricePerItem) {
-        String locationKey = getLocationKey(world, pos);
+        // Get the main position for this chest structure (handles both single and double chests)
+        BlockPos mainPos = TrappedChestUtils.getMainChestPosition(pos, world);
+        String locationKey = getLocationKey(world, mainPos);
         
         if (shops.containsKey(locationKey)) {
             return false; // Shop already exists at this location
         }
         
-        ChestShop shop = new ChestShop(ownerUUID, ownerName, shopName, pos, world.getRegistryKey().getValue().toString(), pricePerItem);
+        ChestShop shop = new ChestShop(ownerUUID, ownerName, shopName, mainPos, world.getRegistryKey().getValue().toString(), pricePerItem);
         shops.put(locationKey, shop);
         saveShops();
         
-        Tccdiamondeconomy.LOGGER.info("Created chest shop '{}' at {} for player {} with price {} diamonds per item", 
-                shopName, locationKey, ownerName, BalanceManager.formatBalance(pricePerItem));
+        String chestType = TrappedChestUtils.getChestType(pos, world);
+        
+        Tccdiamondeconomy.LOGGER.info("Created {} chest shop '{}' at {} for player {} with price {} diamonds per item", 
+                chestType.toLowerCase(), shopName, locationKey, ownerName, BalanceManager.formatBalance(pricePerItem));
         
         return true;
     }
@@ -146,8 +151,8 @@ public class ChestShopManager {
     }
     
     public boolean removeShop(BlockPos pos, World world, UUID playerUUID) {
-        String locationKey = getLocationKey(world, pos);
-        ChestShop shop = shops.get(locationKey);
+        // Find the shop at this position (handles both single and double chests)
+        ChestShop shop = getShop(pos, world);
         
         if (shop == null) {
             return false; // No shop at this location
@@ -157,10 +162,15 @@ public class ChestShopManager {
             return false; // Not the owner
         }
         
+        // Remove using the shop's actual location key
+        String locationKey = getLocationKey(world, shop.getBlockPos());
         shops.remove(locationKey);
         saveShops();
         
-        Tccdiamondeconomy.LOGGER.info("Removed chest shop at {} owned by {}", locationKey, shop.ownerName);
+        String chestType = TrappedChestUtils.getChestType(pos, world);
+        
+        Tccdiamondeconomy.LOGGER.info("Removed {} chest shop '{}' at {} owned by {}", 
+                chestType.toLowerCase(), shop.shopName, locationKey, shop.ownerName);
         
         return true;
     }
@@ -183,13 +193,26 @@ public class ChestShopManager {
     }
     
     public ChestShop getShop(BlockPos pos, World world) {
+        // First check if there's a shop at this exact position
         String locationKey = getLocationKey(world, pos);
-        return shops.get(locationKey);
+        ChestShop shop = shops.get(locationKey);
+        if (shop != null) {
+            return shop;
+        }
+        
+        // If not found, check if this position is part of a double chest
+        // and look for the shop at the main position
+        BlockPos mainPos = TrappedChestUtils.getMainChestPosition(pos, world);
+        if (!mainPos.equals(pos)) {
+            String mainLocationKey = getLocationKey(world, mainPos);
+            return shops.get(mainLocationKey);
+        }
+        
+        return null;
     }
     
     public boolean isShop(BlockPos pos, World world) {
-        String locationKey = getLocationKey(world, pos);
-        return shops.containsKey(locationKey);
+        return getShop(pos, world) != null;
     }
     
     public boolean isShopOwner(BlockPos pos, World world, UUID playerUUID) {
@@ -241,8 +264,7 @@ public class ChestShopManager {
     
     // Record a sale for statistics
     public void recordSale(BlockPos pos, World world, int quantity, BigDecimal totalPrice) {
-        String locationKey = getLocationKey(world, pos);
-        ChestShop shop = shops.get(locationKey);
+        ChestShop shop = getShop(pos, world);
         if (shop != null) {
             shop.recordSale(quantity, totalPrice);
             saveShops();
@@ -258,8 +280,7 @@ public class ChestShopManager {
     
     // Update shop price
     public boolean updateShopPrice(BlockPos pos, World world, BigDecimal newPrice) {
-        String locationKey = getLocationKey(world, pos);
-        ChestShop shop = shops.get(locationKey);
+        ChestShop shop = getShop(pos, world);
         if (shop != null) {
             shop.pricePerItem = newPrice;
             saveShops();
@@ -270,8 +291,7 @@ public class ChestShopManager {
     
     // Update shop name
     public boolean updateShopName(BlockPos pos, World world, String newName) {
-        String locationKey = getLocationKey(world, pos);
-        ChestShop shop = shops.get(locationKey);
+        ChestShop shop = getShop(pos, world);
         if (shop != null) {
             shop.shopName = newName;
             saveShops();
@@ -301,6 +321,23 @@ public class ChestShopManager {
         }
         
         return new EconomyStats(totalMoney, totalShops, totalTransactions, totalItemsSold, mostSuccessfulShop);
+    }
+    
+    // Calculate shop activity index (percentage of shops that had sales in the last week)
+    public BigDecimal getShopActivityIndex() {
+        if (shops.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        
+        long oneWeekAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L); // 7 days in milliseconds
+        
+        long activeShops = shops.values().stream()
+                .mapToLong(shop -> shop.lastSaleTime > oneWeekAgo ? 1 : 0)
+                .sum();
+        
+        return BigDecimal.valueOf(activeShops)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(BigDecimal.valueOf(shops.size()), 1, RoundingMode.HALF_UP);
     }
     
     // Economy statistics data class

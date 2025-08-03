@@ -135,6 +135,60 @@ public class BalanceManager {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
     
+    // Get average player balance
+    public BigDecimal getAverageBalance() {
+        if (balanceCache.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        
+        BigDecimal total = getTotalMoney();
+        return total.divide(BigDecimal.valueOf(balanceCache.size()), 2, RoundingMode.HALF_UP);
+    }
+    
+    // Calculate Gini coefficient for economic inequality (0 = perfect equality, 1 = maximum inequality)
+    public BigDecimal getEconomicInequalityIndex() {
+        if (balanceCache.size() <= 1) {
+            return BigDecimal.ZERO; // Perfect equality with 0 or 1 player
+        }
+        
+        List<BigDecimal> sortedBalances = balanceCache.values().stream()
+                .sorted()
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+        
+        BigDecimal sumOfAbsoluteDifferences = BigDecimal.ZERO;
+        BigDecimal mean = getAverageBalance();
+        int n = sortedBalances.size();
+        
+        // Calculate Gini coefficient using the formula:
+        // G = (1/n) * (1/mean) * sum of |xi - xj| for all i,j / 2
+        // Simplified calculation for better performance
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                BigDecimal diff = sortedBalances.get(j).subtract(sortedBalances.get(i));
+                sumOfAbsoluteDifferences = sumOfAbsoluteDifferences.add(diff);
+            }
+        }
+        
+        if (mean.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        
+        // G = (2 * sumOfAbsoluteDifferences) / (n * (n-1) * mean)
+        BigDecimal denominator = BigDecimal.valueOf(n)
+                .multiply(BigDecimal.valueOf(n - 1))
+                .multiply(mean);
+        
+        BigDecimal gini = sumOfAbsoluteDifferences.multiply(BigDecimal.valueOf(2))
+                .divide(denominator, 4, RoundingMode.HALF_UP);
+        
+        return gini.min(BigDecimal.ONE); // Cap at 1.0
+    }
+    
+    // Get number of players with balances
+    public int getPlayerCount() {
+        return balanceCache.size();
+    }
+    
     // Find a player's UUID by their name (for offline transfers)
     // This method checks all balance files to find a player who has played before
     public UUID findPlayerUUIDByName(String playerName) {

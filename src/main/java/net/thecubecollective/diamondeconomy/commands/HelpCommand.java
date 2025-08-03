@@ -61,6 +61,9 @@ public class HelpCommand {
         player.sendMessage(Text.literal("/createshop <price> [name]").formatted(Formatting.GREEN)
                 .append(Text.literal(" - Create a chest shop (look at trapped chest)").formatted(Formatting.WHITE)), false);
         
+        player.sendMessage(Text.literal("   💡 ").formatted(Formatting.YELLOW)
+                .append(Text.literal("Tip: Place another trapped chest next to expand to double chest").formatted(Formatting.GRAY)), false);
+        
         player.sendMessage(Text.literal("/editshop price <amount>").formatted(Formatting.GREEN)
                 .append(Text.literal(" - Change shop price (look at your shop)").formatted(Formatting.WHITE)), false);
         

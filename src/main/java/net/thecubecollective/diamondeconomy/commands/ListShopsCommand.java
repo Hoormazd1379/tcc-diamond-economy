@@ -11,6 +11,10 @@ import net.minecraft.util.Formatting;
 import net.thecubecollective.diamondeconomy.BalanceManager;
 import net.thecubecollective.diamondeconomy.ChestShopManager;
 import net.thecubecollective.diamondeconomy.Tccdiamondeconomy;
+import net.thecubecollective.diamondeconomy.TrappedChestUtils;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 import java.util.List;
 
@@ -49,13 +53,33 @@ public class ListShopsCommand {
         for (int i = 0; i < playerShops.size(); i++) {
             ChestShopManager.ChestShop shop = playerShops.get(i);
             
+            // Get chest type by looking up the shop in the world
+            String chestType = "Unknown";
+            try {
+                MinecraftServer server = Tccdiamondeconomy.getServer();
+                if (server != null) {
+                    for (World world : server.getWorlds()) {
+                        if (world.getRegistryKey().getValue().toString().equals(shop.worldName)) {
+                            BlockPos shopPos = new BlockPos(shop.x, shop.y, shop.z);
+                            chestType = TrappedChestUtils.getChestType(shopPos, world);
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Fallback to "Single" if we can't determine type
+                chestType = "Single";
+            }
+            
             // Display shop name (fallback to "Unnamed Shop" if null/empty)
             String displayName = (shop.shopName != null && !shop.shopName.trim().isEmpty()) ? shop.shopName : "Unnamed Shop";
             
             player.sendMessage(Text.literal((i + 1) + ". ")
                     .formatted(Formatting.WHITE)
                     .append(Text.literal("🏪 " + displayName)
-                            .formatted(Formatting.AQUA, Formatting.BOLD)), false);
+                            .formatted(Formatting.AQUA, Formatting.BOLD))
+                    .append(Text.literal(" (" + chestType + " Chest)")
+                            .formatted(Formatting.GRAY)), false);
             
             player.sendMessage(Text.literal("   📍 Location: " + shop.x + ", " + shop.y + ", " + shop.z)
                     .formatted(Formatting.GRAY)

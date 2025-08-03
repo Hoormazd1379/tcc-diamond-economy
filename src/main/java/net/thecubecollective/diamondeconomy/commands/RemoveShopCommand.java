@@ -80,15 +80,34 @@ public class RemoveShopCommand {
         boolean success = shopManager.removeShop(targetPos, world, player.getUuid());
         
         if (success) {
-            // Grant temporary permission to break the physical block
-            net.thecubecollective.diamondeconomy.ShopRemovalTracker.grantPermission(targetPos, player.getUuid());
-            
-            source.sendMessage(Text.literal("✅ Shop removed successfully!")
-                    .formatted(Formatting.GREEN));
-            source.sendMessage(Text.literal("🔨 You now have 30 seconds to break the chest block")
-                    .formatted(Formatting.YELLOW));
-            source.sendMessage(Text.literal("💡 The chest is no longer protected and can be broken normally")
-                    .formatted(Formatting.GRAY));
+            // Grant temporary permission to break ALL parts of the chest structure
+            ChestShopManager.ChestShop shop = shopManager.getShop(targetPos, world);
+            if (shop != null) {
+                BlockPos mainPos = shop.getBlockPos();
+                
+                // Get all positions that are part of this chest structure
+                java.util.List<BlockPos> chestPositions = net.thecubecollective.diamondeconomy.TrappedChestUtils.getChestPositions(mainPos, world);
+                
+                // Grant permission for all positions
+                for (BlockPos pos : chestPositions) {
+                    net.thecubecollective.diamondeconomy.ShopRemovalTracker.grantPermission(pos, player.getUuid());
+                }
+                
+                source.sendMessage(Text.literal("✅ Shop removed successfully!")
+                        .formatted(Formatting.GREEN));
+                
+                if (chestPositions.size() > 1) {
+                    source.sendMessage(Text.literal("🔨 You now have 30 seconds to break both chest blocks")
+                            .formatted(Formatting.YELLOW));
+                    source.sendMessage(Text.literal("💡 Both parts of the double chest are now unprotected")
+                            .formatted(Formatting.GRAY));
+                } else {
+                    source.sendMessage(Text.literal("🔨 You now have 30 seconds to break the chest block")
+                            .formatted(Formatting.YELLOW));
+                    source.sendMessage(Text.literal("💡 The chest is no longer protected and can be broken normally")
+                            .formatted(Formatting.GRAY));
+                }
+            }
             
             Tccdiamondeconomy.LOGGER.info("Player {} removed their shop at {}", 
                     player.getName().getString(), targetPos);

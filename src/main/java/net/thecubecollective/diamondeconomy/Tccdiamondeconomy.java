@@ -47,6 +47,9 @@ public class Tccdiamondeconomy implements DedicatedServerModInitializer {
 		// Register chest shop event handlers
 		ChestShopEventHandler.register();
 		
+		// Register trapped chest expansion handler
+		TrappedChestExpansionHandler.register();
+		
 		// Register ULTIMATE shop protection system
 		UltimateShopProtection.register();
 		

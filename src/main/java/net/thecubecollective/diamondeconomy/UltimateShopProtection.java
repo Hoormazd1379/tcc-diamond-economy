@@ -65,7 +65,7 @@ public class UltimateShopProtection {
     }
     
     /**
-     * Check if this position contains a shop
+     * Check if this position contains a shop (handles both single and double chests)
      */
     private static boolean isShopBlock(BlockPos pos, World world, BlockState state) {
         if (!state.isOf(Blocks.TRAPPED_CHEST)) {
@@ -73,7 +73,19 @@ public class UltimateShopProtection {
         }
         
         ChestShopManager shopManager = Tccdiamondeconomy.getChestShopManager();
-        return shopManager != null && shopManager.isShop(pos, world);
+        if (shopManager == null) {
+            return false;
+        }
+        
+        // Check if this position is directly a shop
+        if (shopManager.isShop(pos, world)) {
+            return true;
+        }
+        
+        // Check if this position is part of a double chest shop
+        // by checking if the main position is a shop
+        BlockPos mainPos = net.thecubecollective.diamondeconomy.TrappedChestUtils.getMainChestPosition(pos, world);
+        return !mainPos.equals(pos) && shopManager.isShop(mainPos, world);
     }
     
     /**
@@ -85,11 +97,22 @@ public class UltimateShopProtection {
     }
     
     /**
-     * Check if player is shop owner
+     * Check if player is shop owner (handles both single and double chests)
      */
     private static boolean isShopOwner(BlockPos pos, World world, java.util.UUID playerUUID) {
         ChestShopManager shopManager = Tccdiamondeconomy.getChestShopManager();
-        return shopManager != null && shopManager.isShopOwner(pos, world, playerUUID);
+        if (shopManager == null) {
+            return false;
+        }
+        
+        // Check direct ownership
+        if (shopManager.isShopOwner(pos, world, playerUUID)) {
+            return true;
+        }
+        
+        // For double chests, check if this is part of a shop owned by the player
+        BlockPos mainPos = net.thecubecollective.diamondeconomy.TrappedChestUtils.getMainChestPosition(pos, world);
+        return !mainPos.equals(pos) && shopManager.isShopOwner(mainPos, world, playerUUID);
     }
     
     /**

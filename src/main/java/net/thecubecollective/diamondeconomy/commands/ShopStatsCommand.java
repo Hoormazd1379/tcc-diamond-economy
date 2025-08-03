@@ -15,6 +15,7 @@ import net.minecraft.world.World;
 import net.thecubecollective.diamondeconomy.BalanceManager;
 import net.thecubecollective.diamondeconomy.ChestShopManager;
 import net.thecubecollective.diamondeconomy.Tccdiamondeconomy;
+import net.thecubecollective.diamondeconomy.TrappedChestUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -78,6 +79,12 @@ public class ShopStatsCommand {
         player.sendMessage(Text.literal("📍 Location: ")
                 .formatted(Formatting.GRAY)
                 .append(Text.literal(shop.x + ", " + shop.y + ", " + shop.z)
+                        .formatted(Formatting.WHITE)), false);
+        
+        String chestType = TrappedChestUtils.getChestType(targetPos, world);
+        player.sendMessage(Text.literal("📦 Shop Type: ")
+                .formatted(Formatting.GRAY)
+                .append(Text.literal(chestType + " Chest")
                         .formatted(Formatting.WHITE)), false);
         
         player.sendMessage(Text.literal(""), false); // Empty line

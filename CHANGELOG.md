@@ -5,6 +5,50 @@ All notable changes to TCC Diamond Economy will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.2] - 2025-08-03
+
+### 🏪 Double Chest Shop Support
+- **Added** Full support for double trapped chest shops
+- **Added** Shop expansion system: Players can now expand existing single chest shops to double chests by placing another trapped chest adjacent to them
+- **Added** Owner-only expansion validation: Only the shop owner can expand their shops for security
+- **Enhanced** GUI system with dynamic sizing for both single (27 slots) and double chest shops (54 slots)
+- **Added** TrappedChestUtils utility class for chest type detection and position management
+- **Added** TrappedChestExpansionHandler for secure shop expansion events
+
+### 🛡️ Enhanced Security & Protection
+- **Fixed** Critical hopper protection vulnerability: Now protects ALL parts of double chest shops from hopper access
+- **Enhanced** UltimateShopProtection system to cover both halves of double chest shops
+- **Improved** Shop validation system to verify all parts of double chest shops exist
+- **Fixed** Shop removal system to grant break permissions for all parts of double chest shops
+- **Enhanced** Block break protection covering complete double chest structures
+
+### 📊 Advanced Economy Analytics
+- **Added** Gini coefficient calculation for measuring economic inequality in `/economystats`
+- **Added** Shop activity indexing system for tracking economic vitality
+- **Enhanced** Economic statistics with wealth distribution analysis
+- **Improved** Shop performance metrics and analytics
+
+### 🔧 User Experience Improvements
+- **Added** Shop expansion tips in help messages and command outputs
+- **Enhanced** `/createshop` command with expansion guidance for single chest shops
+- **Updated** `/tcchelp` command with information about shop expansion capabilities
+- **Improved** User guidance with contextual tips about double chest functionality
+- **Enhanced** Success messages showing different information for single vs double chest shops
+
+### 🐛 Bug Fixes & Technical Improvements
+- **Fixed** ChestShopEventHandler cleanup logic to properly validate all parts of double chest shops
+- **Improved** Shop inventory access for double chests using proper Minecraft APIs
+- **Enhanced** Shop data persistence and integrity validation
+- **Fixed** Edge cases in shop detection and ownership validation for expanded shops
+- **Improved** Error handling and validation throughout the double chest system
+
+### 🏗️ Technical Infrastructure
+- **Added** Comprehensive utility methods for chest structure management
+- **Enhanced** Data models to support double chest shop configurations
+- **Improved** Event handling system for shop interactions and expansions
+- **Added** Advanced position tracking and main chest position calculation
+- **Enhanced** Shop registry system to handle complex chest structures
+
 ## [1.6.1] - 2025-07-31
 
 ### 🔧 Quality of Life Improvement

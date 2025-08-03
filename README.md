@@ -4,7 +4,7 @@
 [![Fabric API](https://img.shields.io/badge/Fabric%20API-0.130.0-blue.svg)](https://fabricmc.net)
 [![Java Version](https://img.shields.io/badge/Java-21+-orange.svg)](https://openjdk.org/)
 [![License](https://img.shields.io/badge/License-CC0--1.0-lightgrey.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.6.1-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
+[![Version](https://img.shields.io/badge/Version-1.6.2-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
 [![Server Side](https://img.shields.io/badge/Side-Server-yellow.svg)]()
 
 A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric that allows players to manage their diamond wealth through a secure banking system with transfers, balance management, offline notifications, and chest shops for player-to-player trading.
@@ -30,6 +30,8 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 - **Server Statistics**: View economy-wide data with `/economystats` command
 - **Shop Performance**: Individual shop analytics showing sales and transaction data
 - **Economic Health**: Track total money circulation and economic activity
+- **Economic Inequality Analysis**: Gini coefficient calculations to measure wealth distribution
+- **Shop Activity Indexing**: Advanced metrics for tracking economic vitality
 - **Leaderboards**: Top performing shops and wealthiest players
 - **Real-time Insights**: Live statistics update with every transaction
 
@@ -41,25 +43,35 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 ### 🏪 **Advanced Chest Shop System**
 - **Named Shops**: Create shops with custom names like `/createshop 1.5 "My Food Shop"`
 - **Fractional Pricing**: Create shops with decimal prices like `/createshop 1.5` or `/createshop 0.25`
+- **Double Chest Support**: Shops can be expanded to double chests by placing another trapped chest adjacent to an existing shop
 - **Shop Creation**: Convert trapped chests into shops with custom per-item pricing
-- **Custom Shopping GUI**: Dedicated customer interface showing shop name and owner
+- **Shop Expansion**: Existing shops can be expanded to double storage by placing another trapped chest next to them
+- **Custom Shopping GUI**: Dedicated customer interface showing shop name and owner with dynamic sizing for single/double chests
 - **Shop Statistics**: Track total sales, items sold, and transaction history per shop
 - **Analytics**: View detailed shop performance with `/shopstats` command
 - **Enhanced Visual Effects**: Multiple particle types with orbital sparkles and ambient glows
-- **Shop Protection**: Owner-only access for modifications; hopper protection prevents theft
-- **Automatic Validation**: Shop database integrity checked every 10 seconds, removing destroyed shops
+- **Ultimate Shop Protection**: Comprehensive protection system preventing unauthorized access:
+  - Complete hopper protection for all parts of double chest shops
+  - Block break protection covering both halves of double chests
+  - Owner-only expansion validation with security checks
+- **Automatic Validation**: Advanced shop integrity system validates all parts of double chest shops every 10 seconds
+- **Smart Purchase System**: Left-click for single items, right-click for full stacks
+- **Real-time Notifications**: Shop owners get detailed sale notifications with item names and earnings
+- **Offline Sale Summaries**: Players receive comprehensive shop sale summaries when they log in after being offline
+- **Inventory Synchronization**: Accurate item display with enchantment preservation for both single and double chest shops
 - **Smart Purchase System**: Left-click for single items, right-click for full stacks
 - **Real-time Notifications**: Shop owners get detailed sale notifications with item names and earnings
 - **Offline Sale Summaries**: Players receive comprehensive shop sale summaries when they log in after being offline
 - **Inventory Synchronization**: Accurate item display with enchantment preservation
 
 ### 🛠️ **User Experience**
-- **Comprehensive Help System**: `/tcchelp` with detailed command documentation
+- **Comprehensive Help System**: `/tcchelp` with detailed command documentation and shop expansion tips
 - **Smart Error Handling**: Clear error messages with helpful guidance
 - **Color-coded Feedback**: Green for success, red for errors, gold for balances
 - **Input Validation**: Prevents invalid amounts and edge cases
 - **Rich Visual Effects**: Multiple particle systems for enhanced shop visibility
 - **Intuitive Interface**: Custom GUIs with clear pricing and balance information
+- **Shop Expansion Guidance**: Built-in tips and help messages about expanding shops to double storage
 
 ## 🎮 Commands
 
@@ -70,7 +82,7 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 | `/balance` / `/bal` | Check your current diamond balance | `/balance` | All players |
 | `/wiretransfer <player> <amount>` / `/wire <player> <amount>` | Send diamonds to another player | `/wire Steve 25` | All players |
 | `/baltop` | View top 10 richest players | `/baltop` | All players |
-| `/createshop <price> [name]` | Create a chest shop (look at trapped chest) | `/createshop 10 "Food Shop"` | All players |
+| `/createshop <price> [name]` | Create a chest shop (look at trapped chest) - Can be expanded to double storage | `/createshop 10 "Food Shop"` | All players |
 | `/editshop price <amount>` | Change shop price per item (look at your shop) | `/editshop price 2.5` | Shop owners |
 | `/editshop name <name>` | Change shop name (look at your shop) | `/editshop name "New Name"` | Shop owners |
 | `/removeshop` | Remove your chest shop (look at shop) | `/removeshop` | All players |
@@ -91,7 +103,7 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 
 ### Server Installation
 1. Download the latest release from [Releases](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
-2. Place `tcc-diamond-economy-1.6.1.jar` in your server's `mods/` folder
+2. Place `tcc-diamond-economy-1.6.2.jar` in your server's `mods/` folder
 3. Ensure Fabric API is installed
 4. Start your server
 5. Players can immediately start using the economy system!
@@ -134,6 +146,10 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 /createshop 0.1 "Cheap Items"          # Budget-friendly shop
 /createshop 25.75                      # Premium pricing (unnamed shop)
 
+# Expand your shop to double storage:
+# Simply place another trapped chest next to an existing shop!
+# Only the shop owner can expand their shops
+
 # Edit your existing shops:
 /editshop price 2.0                    # Change shop price (look at your shop)
 /editshop name "Updated Shop Name"     # Change shop name (look at your shop)
@@ -145,6 +161,7 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 
 # Shop GUI will show: "🏪 Steve's Food Market - Steve"
 # Enhanced analytics track all sales and performance metrics
+# Double chest shops display larger GUI with more inventory space
 ```
 
 ### Advanced Shop Features
@@ -160,6 +177,23 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 - Ambient glow effects
 - Golden shower effects for special occasions
 - Multiple particle types for enhanced visibility
+```
+
+### 🛡️ Security & Protection
+```
+# Ultimate Shop Protection System provides:
+- Complete hopper protection for all parts of double chest shops
+- Block break protection covering both halves of double chests
+- Owner-only expansion validation with security checks
+- Advanced shop integrity validation every 10 seconds
+- Protection against all forms of griefing and unauthorized access
+- Secure removal system with temporary permissions for shop owners
+
+# All security measures are fail-safe and prevent:
+- Hopper item extraction from any part of shops
+- Unauthorized block breaking or chest destruction
+- Shop hijacking during expansion attempts
+- Data corruption from partial shop destruction
 ```
 
 ### Getting Help

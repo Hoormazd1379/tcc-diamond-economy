@@ -134,8 +134,22 @@ public class ShopValidationSystem {
                 return true; // Assume valid if chunk isn't loaded (don't remove)
             }
             
-            // Check if there's a trapped chest at the position
-            return world.getBlockState(pos).isOf(Blocks.TRAPPED_CHEST);
+            // Check if there's a trapped chest at the main position
+            if (!world.getBlockState(pos).isOf(Blocks.TRAPPED_CHEST)) {
+                return false; // Main position doesn't have trapped chest
+            }
+            
+            // For double chest shops, validate that ALL parts still exist
+            java.util.List<BlockPos> allPositions = net.thecubecollective.diamondeconomy.TrappedChestUtils.getChestPositions(pos, world);
+            for (BlockPos chestPos : allPositions) {
+                if (!world.getBlockState(chestPos).isOf(Blocks.TRAPPED_CHEST)) {
+                    Tccdiamondeconomy.LOGGER.warn("🔍 Double chest shop at {} is missing part at {} - marking as invalid", 
+                            pos, chestPos);
+                    return false; // Part of double chest is missing
+                }
+            }
+            
+            return true; // All parts of the shop exist
             
         } catch (Exception e) {
             Tccdiamondeconomy.LOGGER.error("Error validating shop at {}:{}:{}:{}", 

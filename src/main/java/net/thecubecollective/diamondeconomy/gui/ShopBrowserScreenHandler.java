@@ -30,7 +30,8 @@ public class ShopBrowserScreenHandler extends GenericContainerScreenHandler {
     public ShopBrowserScreenHandler(int syncId, PlayerInventory playerInventory, 
                                   Inventory shopInventory, ChestShopManager.ChestShop shop, 
                                   BlockPos pos, World world) {
-        super(ScreenHandlerType.GENERIC_9X3, syncId, playerInventory, new SimpleInventory(27), 3);
+        super(getScreenHandlerType(shopInventory), syncId, playerInventory, 
+              createDisplayInventory(shopInventory), getRows(shopInventory));
         this.shop = shop;
         this.pos = pos;
         this.world = world;
@@ -41,12 +42,28 @@ public class ShopBrowserScreenHandler extends GenericContainerScreenHandler {
         updateDisplayInventory();
     }
     
+    private static ScreenHandlerType<GenericContainerScreenHandler> getScreenHandlerType(Inventory inventory) {
+        // Determine screen handler type based on inventory size
+        return inventory.size() > 27 ? ScreenHandlerType.GENERIC_9X6 : ScreenHandlerType.GENERIC_9X3;
+    }
+    
+    private static SimpleInventory createDisplayInventory(Inventory inventory) {
+        // Create display inventory with the same size as the actual inventory
+        return new SimpleInventory(inventory.size());
+    }
+    
+    private static int getRows(Inventory inventory) {
+        // Calculate number of rows based on inventory size
+        return inventory.size() > 27 ? 6 : 3;
+    }
+    
     private void updateDisplayInventory() {
         // Clear display inventory
         displayInventory.clear();
         
         // Copy items from actual shop inventory to display inventory
-        for (int i = 0; i < Math.min(actualShopInventory.size(), 27); i++) {
+        // Use the actual inventory size instead of hardcoded 27
+        for (int i = 0; i < Math.min(actualShopInventory.size(), displayInventory.size()); i++) {
             ItemStack original = actualShopInventory.getStack(i);
             if (!original.isEmpty()) {
                 // Create a perfect copy of the original item
@@ -78,7 +95,8 @@ public class ShopBrowserScreenHandler extends GenericContainerScreenHandler {
     @Override
     public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
         // Only handle clicks on the display inventory (shop items)
-        if (slotIndex >= 0 && slotIndex < 27) {
+        // Use dynamic inventory size instead of hardcoded 27
+        if (slotIndex >= 0 && slotIndex < displayInventory.size()) {
             handleShopItemClick(slotIndex, button, player);
             return;
         }
@@ -209,8 +227,8 @@ public class ShopBrowserScreenHandler extends GenericContainerScreenHandler {
     
     @Override
     public ItemStack quickMove(PlayerEntity player, int slot) {
-        // Prevent shift-clicking from shop display
-        if (slot < 27) {
+        // Prevent shift-clicking from shop display (use dynamic inventory size)
+        if (slot < displayInventory.size()) {
             handleShopItemClick(slot, 0, player); // Treat as left-click purchase
             return ItemStack.EMPTY;
         }
@@ -226,8 +244,8 @@ public class ShopBrowserScreenHandler extends GenericContainerScreenHandler {
     
     @Override
     protected boolean insertItem(ItemStack stack, int startIndex, int endIndex, boolean fromLast) {
-        // Prevent inserting items into shop display
-        if (startIndex < 27) {
+        // Prevent inserting items into shop display (use dynamic inventory size)
+        if (startIndex < displayInventory.size()) {
             return false;
         }
         return super.insertItem(stack, startIndex, endIndex, fromLast);

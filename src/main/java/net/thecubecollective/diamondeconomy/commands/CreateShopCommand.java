@@ -4,7 +4,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
@@ -19,6 +18,7 @@ import net.minecraft.world.World;
 import net.thecubecollective.diamondeconomy.BalanceManager;
 import net.thecubecollective.diamondeconomy.ChestShopManager;
 import net.thecubecollective.diamondeconomy.Tccdiamondeconomy;
+import net.thecubecollective.diamondeconomy.TrappedChestUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,6 +40,8 @@ public class CreateShopCommand {
                             .formatted(Formatting.GRAY));
                     ctx.getSource().sendMessage(Text.literal("Example: /createshop 0.1 \"My Food Shop\" (named shop)")
                             .formatted(Formatting.GRAY));
+                    ctx.getSource().sendMessage(Text.literal("💡 Tip: Place another trapped chest next to expand your shop")
+                            .formatted(Formatting.AQUA));
                     return 0;
                 }));
     }
@@ -94,7 +96,10 @@ public class CreateShopCommand {
         
         ChestShopManager shopManager = Tccdiamondeconomy.getChestShopManager();
         
-        // Check if a shop already exists at this location
+        // Get the main position for this chest structure
+        BlockPos mainPos = TrappedChestUtils.getMainChestPosition(targetPos, world);
+        
+        // Check if a shop already exists at this location (considering double chests)
         if (shopManager.isShop(targetPos, world)) {
             source.sendError(Text.literal("A shop already exists at this location!")
                     .formatted(Formatting.RED));
@@ -103,7 +108,7 @@ public class CreateShopCommand {
             return 0;
         }
         
-        // Create the shop with name
+        // Create the shop with name (using main position for double chests)
         boolean success = shopManager.createShop(
                 player.getUuid(), 
                 player.getName().getString(),
@@ -114,16 +119,30 @@ public class CreateShopCommand {
         );
         
         if (success) {
-            source.sendMessage(Text.literal("✅ Shop \"" + shopName + "\" created successfully!")
+            String chestType = TrappedChestUtils.getChestType(targetPos, world);
+            
+            source.sendMessage(Text.literal("✅ " + chestType + " chest shop \"" + shopName + "\" created successfully!")
                     .formatted(Formatting.GREEN, Formatting.BOLD));
             source.sendMessage(Text.literal("🛡️ Your shop is protected from block breaking!")
                     .formatted(Formatting.AQUA));
-            source.sendMessage(Text.literal("📍 Location: " + targetPos.getX() + ", " + targetPos.getY() + ", " + targetPos.getZ())
+            source.sendMessage(Text.literal("📍 Location: " + mainPos.getX() + ", " + mainPos.getY() + ", " + mainPos.getZ())
                     .formatted(Formatting.GRAY));
             source.sendMessage(Text.literal("💎 Price: " + BalanceManager.formatBalance(pricePerItem) + " diamonds per item")
                     .formatted(Formatting.GOLD));
+            
+            if (chestType.equals("Double")) {
+                source.sendMessage(Text.literal("📦 Double chest shop has extra storage capacity!")
+                        .formatted(Formatting.AQUA));
+            }
+            
             source.sendMessage(Text.literal("💡 Fill your chest with items to sell! Players will pay " + BalanceManager.formatBalance(pricePerItem) + " diamonds for each item they take.")
                     .formatted(Formatting.YELLOW));
+            
+            if (chestType.equals("Single")) {
+                source.sendMessage(Text.literal("📦 Tip: Place another trapped chest next to this one to expand to double storage!")
+                        .formatted(Formatting.AQUA));
+            }
+            
             source.sendMessage(Text.literal("🛠️ Use /removeshop while looking at this shop to safely remove it")
                     .formatted(Formatting.GRAY));
             
