@@ -45,7 +45,13 @@ public class ShopParticleManager {
                 
                 // Check if the chest still exists and is a trapped chest
                 if (world.getBlockState(pos).isOf(net.minecraft.block.Blocks.TRAPPED_CHEST)) {
-                    spawnShopParticles(world, pos, random);
+                    // For double chest shops, spawn particles at ALL chest positions
+                    java.util.List<BlockPos> chestPositions = TrappedChestUtils.getChestPositions(pos, world);
+                    for (BlockPos chestPos : chestPositions) {
+                        if (world.getBlockState(chestPos).isOf(net.minecraft.block.Blocks.TRAPPED_CHEST)) {
+                            spawnShopParticles(world, chestPos, random);
+                        }
+                    }
                 }
             }
         }
