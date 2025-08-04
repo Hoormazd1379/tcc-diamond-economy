@@ -230,6 +230,13 @@ public class ChestShopManager {
                 .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }
     
+    public List<ChestShop> getTopShops(int limit) {
+        return shops.values().stream()
+                .sorted((shop1, shop2) -> shop2.totalSales.compareTo(shop1.totalSales)) // Sort by total sales, descending
+                .limit(limit)
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+    }
+    
     private String getLocationKey(World world, BlockPos pos) {
         return world.getRegistryKey().getValue().toString() + ":" + pos.getX() + ":" + pos.getY() + ":" + pos.getZ();
     }

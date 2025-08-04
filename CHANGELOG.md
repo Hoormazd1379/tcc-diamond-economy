@@ -5,6 +5,29 @@ All notable changes to TCC Diamond Economy will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.3] - 2025-08-04
+
+### 🏆 New Features
+- **Added `/shoptop` command** - Display top 10 shops ranked by total sales revenue
+- **Shop leaderboard system** with medal rankings (🥇🥈🥉) showing shop name, owner, chest type, and earnings
+- **Smart chest type detection** - Automatically shows whether shops are Single or Double chest types in leaderboards
+
+### 🎨 Visual Improvements
+- **Enhanced leaderboard colors** for better readability in both `/baltop` and `/shoptop`:
+  - 🥈 **2nd place**: Changed from gray to bright white for better visibility
+  - **4th-10th place**: Changed from dark gray to light gray for improved readability
+- **Consistent color scheme** across all ranking displays
+
+### 🔧 Technical Enhancements
+- **Added `getTopShops()` method** to ChestShopManager for efficient shop ranking by sales
+- **Optimized performance** with proper sorting and result limiting
+- **Robust error handling** for offline players and missing world data
+
+### 📚 Documentation & Help
+- **Updated `/tcchelp` command** with `/shoptop` documentation
+- **Enhanced README** with new command examples and leaderboard features
+- **Accurate terminology** - Updated descriptions to use "shops by sales" instead of "profitable shops"
+
 ## [1.6.2] - 2025-08-03
 
 ### 🏪 Double Chest Shop Support

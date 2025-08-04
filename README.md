@@ -4,7 +4,7 @@
 [![Fabric API](https://img.shields.io/badge/Fabric%20API-0.130.0-blue.svg)](https://fabricmc.net)
 [![Java Version](https://img.shields.io/badge/Java-21+-orange.svg)](https://openjdk.org/)
 [![License](https://img.shields.io/badge/License-CC0--1.0-lightgrey.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.6.2-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
+[![Version](https://img.shields.io/badge/Version-1.6.3-red.svg)](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
 [![Server Side](https://img.shields.io/badge/Side-Server-yellow.svg)]()
 
 A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric that allows players to manage their diamond wealth through a secure banking system with transfers, balance management, offline notifications, and chest shops for player-to-player trading.
@@ -37,7 +37,8 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 
 ### 📊 **Leaderboards & Statistics**
 - **Baltop System**: View the top 10 richest players with beautiful rankings
-- **Real-time Updates**: Leaderboards reflect current balances instantly
+- **Shoptop System**: View the top 10 shops by sales with owner info and chest types
+- **Real-time Updates**: Leaderboards reflect current balances and shop sales instantly
 - **Visual Rankings**: Medal system (🥇🥈🥉) for top players
 
 ### 🏪 **Advanced Chest Shop System**
@@ -82,6 +83,7 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 | `/balance` / `/bal` | Check your current diamond balance | `/balance` | All players |
 | `/wiretransfer <player> <amount>` / `/wire <player> <amount>` | Send diamonds to another player | `/wire Steve 25` | All players |
 | `/baltop` | View top 10 richest players | `/baltop` | All players |
+| `/shoptop` | View top 10 shops by sales | `/shoptop` | All players |
 | `/createshop <price> [name]` | Create a chest shop (look at trapped chest) - Can be expanded to double storage | `/createshop 10 "Food Shop"` | All players |
 | `/editshop price <amount>` | Change shop price per item (look at your shop) | `/editshop price 2.5` | Shop owners |
 | `/editshop name <name>` | Change shop name (look at your shop) | `/editshop name "New Name"` | Shop owners |
@@ -103,7 +105,7 @@ A comprehensive **server-side diamond-based economy mod** for Minecraft Fabric t
 
 ### Server Installation
 1. Download the latest release from [Releases](https://github.com/Hoormazd1379/tcc-diamond-economy/releases)
-2. Place `tcc-diamond-economy-1.6.2.jar` in your server's `mods/` folder
+2. Place `tcc-diamond-economy-1.6.3.jar` in your server's `mods/` folder
 3. Ensure Fabric API is installed
 4. Start your server
 5. Players can immediately start using the economy system!
@@ -130,6 +132,7 @@ The mod works out-of-the-box with no configuration required! Player data is auto
 /balance             # Check your balance (shows fractional amounts cleanly)
 /withdraw 32         # Withdraw half a stack (still requires whole diamonds)
 /baltop              # See who's the richest (displays fractional balances)
+/shoptop             # See the shops with highest sales (displays revenue with owner info)
 ```
 
 ### Fractional Transfer System

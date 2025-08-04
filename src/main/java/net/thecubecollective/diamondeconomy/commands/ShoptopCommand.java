@@ -10,44 +10,50 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.thecubecollective.diamondeconomy.BalanceManager;
+import net.thecubecollective.diamondeconomy.ChestShopManager;
 import net.thecubecollective.diamondeconomy.Tccdiamondeconomy;
+import net.thecubecollective.diamondeconomy.TrappedChestUtils;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-public class BaltopCommand {
+public class ShoptopCommand {
     
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
-        dispatcher.register(CommandManager.literal("baltop")
-                .executes(BaltopCommand::execute));
+        dispatcher.register(CommandManager.literal("shoptop")
+                .executes(ShoptopCommand::execute));
     }
     
     private static int execute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
         
-        List<Map.Entry<UUID, BigDecimal>> topBalances = Tccdiamondeconomy.getBalanceManager().getTopBalances(10);
+        ChestShopManager shopManager = Tccdiamondeconomy.getChestShopManager();
+        List<ChestShopManager.ChestShop> topShops = shopManager.getTopShops(10);
         
-        if (topBalances.isEmpty()) {
-            player.sendMessage(Text.literal("No players have any diamonds in their accounts yet!")
+        if (topShops.isEmpty()) {
+            player.sendMessage(Text.literal("No shops have made any sales yet!")
                     .formatted(Formatting.YELLOW), false);
             return 1;
         }
         
-        player.sendMessage(Text.literal("=== Top 10 Richest Players ===")
+        player.sendMessage(Text.literal("=== Top 10 Shops by Sales ===")
                 .formatted(Formatting.GOLD, Formatting.BOLD), false);
         
-        for (int i = 0; i < topBalances.size(); i++) {
-            Map.Entry<UUID, BigDecimal> entry = topBalances.get(i);
-            UUID playerUUID = entry.getKey();
-            BigDecimal balance = entry.getValue();
+        for (int i = 0; i < topShops.size(); i++) {
+            ChestShopManager.ChestShop shop = topShops.get(i);
             
-            // Get player name from server
-            String playerName = getPlayerName(playerUUID);
+            // Get shop display name
+            String shopDisplayName = getShopDisplayName(shop);
+            
+            // Get shop owner name
+            String ownerName = getPlayerName(shop.ownerUUID);
+            
+            // Get chest type for the shop
+            String chestType = getChestTypeForShop(shop);
             
             Formatting rankColor;
             String medal = "";
+            
             switch (i) {
                 case 0:
                     rankColor = Formatting.YELLOW; // Bright gold for 1st place
@@ -67,11 +73,21 @@ public class BaltopCommand {
                     break;
             }
             
-            player.sendMessage(Text.literal(medal + (i + 1) + ". " + playerName + ": " + BalanceManager.formatBalance(balance) + " diamonds")
+            // Format: "🥇 1. Steve's Food Market (Steve) [Double] - 150.75💎"
+            player.sendMessage(Text.literal(medal + (i + 1) + ". " + shopDisplayName + 
+                    " (" + ownerName + ") [" + chestType + "] - " + 
+                    BalanceManager.formatBalance(shop.totalSales) + "💎")
                     .formatted(rankColor), false);
         }
         
         return 1;
+    }
+    
+    private static String getShopDisplayName(ChestShopManager.ChestShop shop) {
+        if (shop.shopName != null && !shop.shopName.trim().isEmpty()) {
+            return shop.shopName;
+        }
+        return "Unnamed Shop";
     }
     
     private static String getPlayerName(UUID playerUUID) {
@@ -86,5 +102,27 @@ public class BaltopCommand {
                 .orElse("Unknown Player");
         
         return cachedName;
+    }
+    
+    private static String getChestTypeForShop(ChestShopManager.ChestShop shop) {
+        try {
+            // Try to get the world and check the chest type
+            net.minecraft.server.world.ServerWorld world = null;
+            for (net.minecraft.server.world.ServerWorld serverWorld : Tccdiamondeconomy.getServer().getWorlds()) {
+                if (serverWorld.getRegistryKey().getValue().toString().equals(shop.worldName)) {
+                    world = serverWorld;
+                    break;
+                }
+            }
+            
+            if (world != null) {
+                net.minecraft.util.math.BlockPos pos = shop.getBlockPos();
+                return TrappedChestUtils.getChestType(pos, world);
+            }
+        } catch (Exception e) {
+            // If we can't determine the type, default to Single
+        }
+        
+        return "Single";
     }
 }

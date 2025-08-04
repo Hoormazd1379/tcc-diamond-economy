@@ -88,6 +88,9 @@ public class HelpCommand {
         player.sendMessage(Text.literal("/baltop").formatted(Formatting.GREEN)
                 .append(Text.literal(" - View top 10 richest players").formatted(Formatting.WHITE)), false);
         
+        player.sendMessage(Text.literal("/shoptop").formatted(Formatting.GREEN)
+                .append(Text.literal(" - View top 10 shops by sales").formatted(Formatting.WHITE)), false);
+        
         player.sendMessage(Text.literal("/economystats").formatted(Formatting.GREEN)
                 .append(Text.literal(" - View server economy statistics").formatted(Formatting.WHITE)), false);
         

@@ -63,6 +63,7 @@ public class Tccdiamondeconomy implements DedicatedServerModInitializer {
 			WithdrawCommand.register(dispatcher, registryAccess, environment);
 			BalanceCommand.register(dispatcher, registryAccess, environment);
 			BaltopCommand.register(dispatcher, registryAccess, environment);
+			ShoptopCommand.register(dispatcher, registryAccess, environment);
 			TransferCommand.register(dispatcher, registryAccess, environment);
 			HelpCommand.register(dispatcher, registryAccess, environment);
 			CreateShopCommand.register(dispatcher, registryAccess, environment);
